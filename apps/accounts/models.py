@@ -1,0 +1,57 @@
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from apps.core.models import BaseModel 
+
+USER_TYPE = (
+    ('admin', 'Admin'),
+    ('staff', 'Staff'),
+    ('sellers', 'Sellers'),
+)
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("O email deve ser fornecido")
+        email = self.normalize_email(email)
+        first_name = extra_fields.get("first_name", "").strip().title()
+        last_name = extra_fields.get("last_name", "").strip().title()
+        extra_fields["first_name"] = first_name
+        extra_fields["last_name"] = last_name
+
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser precisa ter is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser precisa ter is_superuser=True.")
+
+        return self.create_user(email, password, **extra_fields)
+
+
+class User(AbstractBaseUser, PermissionsMixin, BaseModel):
+    email = models.EmailField(unique=True, db_index=True)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
+    is_staff = models.BooleanField(default=False)
+    user_type = models.CharField(max_length=20, choices=USER_TYPE, default='Sellers')
+    objects = UserManager()
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["first_name"]
+
+    def __str__(self):
+        return self.email
+
+    def get_full_name(self):
+        return " ".join(filter(None, [self.first_name, self.last_name]))
+
+    def get_short_name(self):
+        return self.first_name or self.email.split("@")[0]

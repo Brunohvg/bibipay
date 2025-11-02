@@ -1,0 +1,1473 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Dashboard de Vendas - BibipPay">
+    <meta name="author" content="BibipPay">
+    <meta name="theme-color" content="#667eea">
+    <title>Minhas Vendas | BibipPay</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-800);
+            padding-bottom: 80px;
+        }
+
+        /* HEADER */
+        .mobile-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            padding: 20px 20px 30px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-greeting {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .greeting-text h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .greeting-text p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .header-stats {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value small {
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions {
+            padding: 20px;
+            margin-top: -15px;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 18px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .action-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .action-button i {
+            font-size: 20px;
+        }
+
+        /* CONTENT */
+        .content {
+            padding: 0 20px 20px;
+        }
+
+        .page-view {
+            display: none;
+        }
+
+        .page-view.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .section-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* MINI STATS */
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .mini-stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-100);
+        }
+
+        .mini-stat-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .mini-stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .mini-stat-icon.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .mini-stat-icon.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .mini-stat-icon.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .mini-stat-icon.primary {
+            background: rgba(102, 126, 234, 0.1);
+            color: var(--primary);
+        }
+
+        .mini-stat-label {
+            font-size: 12px;
+            color: var(--gray-500);
+            font-weight: 600;
+        }
+
+        .mini-stat-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gray-900);
+        }
+
+        .mini-stat-trend {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .mini-stat-trend.up {
+            color: var(--success);
+        }
+
+        .mini-stat-trend.down {
+            color: var(--danger);
+        }
+
+        /* SALES LIST */
+        .sales-list {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-100);
+        }
+
+        .sale-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+
+        .sale-item:last-child {
+            border-bottom: none;
+        }
+
+        .sale-item:active {
+            background: var(--gray-50);
+        }
+
+        .sale-info {
+            flex: 1;
+        }
+
+        .sale-date {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .sale-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .sale-commission {
+            font-size: 13px;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .sale-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        /* COMISSÕES PAGE */
+        .commission-summary {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-100);
+            margin-bottom: 20px;
+        }
+
+        .summary-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: var(--gray-500);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--success);
+        }
+
+        .summary-detail {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-100);
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-item-label {
+            font-size: 12px;
+            color: var(--gray-500);
+            margin-bottom: 6px;
+        }
+
+        .summary-item-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--gray-900);
+        }
+
+        /* PROFILE PAGE */
+        .profile-header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-100);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .profile-avatar-large {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin: 0 auto 16px;
+        }
+
+        .profile-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .profile-email {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+        }
+
+        .profile-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .profile-menu {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--gray-100);
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-100);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:active {
+            background: var(--gray-50);
+        }
+
+        .menu-item-content {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .menu-item-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gray-100);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-600);
+            font-size: 16px;
+        }
+
+        .menu-item-text h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 2px;
+        }
+
+        .menu-item-text p {
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+
+        .menu-item-arrow {
+            color: var(--gray-400);
+            font-size: 14px;
+        }
+
+        /* FILTER BAR */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 16px 20px;
+            margin: 0 -20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-600);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-500);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--gray-500);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-item i {
+            font-size: 20px;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            background: var(--gray-100);
+            border: none;
+            border-radius: 50%;
+            color: var(--gray-600);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+            border: 2px solid var(--gray-200);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+            margin-top: 8px;
+        }
+
+        .btn-submit:active {
+            transform: translateY(2px);
+        }
+
+        /* ALERT */
+        .alert {
+            margin: 20px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #22c55e;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border-color: #ef4444;
+        }
+
+        /* RESPONSIVE */
+        @media (min-width: 768px) {
+            body {
+                max-width: 500px;
+                margin: 0 auto;
+                box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <div class="mobile-header">
+        <div class="header-top">
+            <div class="user-greeting">
+                <div class="user-avatar">{{ user.first_name.0|upper }}{{ user.last_name.0|upper }}</div>
+                <div class="greeting-text">
+                    <h2>Olá, {{ user.first_name|default:"Vendedor" }}! 👋</h2>
+                    <p>Veja suas vendas de hoje</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn">
+                    <i class="fas fa-bell"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat-row">
+                <span class="stat-label">Total Vendido Hoje</span>
+                <span class="stat-value">R$ 2.450</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Comissão do Mês</span>
+                <span class="stat-value">R$ 1.834,50</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }}">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- PÁGINA INÍCIO -->
+        <div class="page-view active" id="homeView">
+            <!-- QUICK ACTION -->
+            <div class="quick-actions" style="padding: 20px 0;">
+                <button class="action-button" onclick="openModal('newSaleModal')">
+                    <i class="fas fa-plus-circle"></i>
+                    Lançar Vendas do Dia
+                </button>
+            </div>
+
+            <!-- MINI STATS -->
+            <div class="mini-stats">
+                <div class="mini-stat-card">
+                    <div class="mini-stat-header">
+                        <div class="mini-stat-icon success">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="mini-stat-label">Vendido Hoje</div>
+                    </div>
+                    <div class="mini-stat-value">R$ 2.450</div>
+                    <div class="mini-stat-trend up">
+                        <i class="fas fa-arrow-up"></i> +R$ 450 vs ontem
+                    </div>
+                </div>
+
+                <div class="mini-stat-card">
+                    <div class="mini-stat-header">
+                        <div class="mini-stat-icon warning">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="mini-stat-label">Comissão Hoje</div>
+                    </div>
+                    <div class="mini-stat-value">R$ 24,50</div>
+                    <div class="mini-stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 1% do total
+                    </div>
+                </div>
+
+                <div class="mini-stat-card">
+                    <div class="mini-stat-header">
+                        <div class="mini-stat-icon info">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="mini-stat-label">Vendido no Mês</div>
+                    </div>
+                    <div class="mini-stat-value">R$ 183.450</div>
+                    <div class="mini-stat-trend up">
+                        <i class="fas fa-arrow-up"></i> 18% vs mês anterior
+                    </div>
+                </div>
+
+                <div class="mini-stat-card">
+                    <div class="mini-stat-header">
+                        <div class="mini-stat-icon primary">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="mini-stat-label">Pendente Aprovação</div>
+                    </div>
+                    <div class="mini-stat-value">R$ 3.200</div>
+                    <div class="mini-stat-trend down">
+                        <i class="fas fa-clock"></i> 2 lançamentos
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECENT SALES -->
+            <div class="section-header">
+                <h2 class="section-title">Últimos Lançamentos</h2>
+                <a href="#" class="section-link" onclick="showView('salesView'); return false;">
+                    Ver todos <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+
+            <div class="sales-list">
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">Hoje - Fim do expediente</div>
+                        <div class="sale-value">R$ 2.450,00</div>
+                        <div class="sale-commission">Comissão: R$ 24,50 (1%)</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-warning">Pendente</span>
+                        <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                    </div>
+                </div>
+
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">Ontem - Fim do expediente</div>
+                        <div class="sale-value">R$ 1.820,00</div>
+                        <div class="sale-commission">Comissão: R$ 18,20 (1%)</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-success">Aprovado</span>
+                        <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA VENDAS -->
+        <div class="page-view" id="salesView">
+            <div class="filter-bar">
+                <button class="filter-chip active">Todos</button>
+                <button class="filter-chip">Pendentes</button>
+                <button class="filter-chip">Aprovados</button>
+                <button class="filter-chip">Pagos</button>
+                <button class="filter-chip">Este Mês</button>
+            </div>
+
+            <div class="section-header" style="margin-top: 0;">
+                <h2 class="section-title">Meus Lançamentos</h2>
+            </div>
+
+            <div class="sales-list">
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">02/11/2025 - Fim do expediente</div>
+                        <div class="sale-value">R$ 2.450,00</div>
+                        <div class="sale-commission">Comissão: R$ 24,50 (1%)</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-warning">Pendente Aprovação</span>
+                        <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                    </div>
+                </div>
+
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">01/11/2025 - Fim do expediente</div>
+                        <div class="sale-value">R$ 1.820,00</div>
+                        <div class="sale-commission">Comissão: R$ 18,20 (1%)</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-info">Aprovado - Contabilidade</span>
+                        <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                    </div>
+                </div>
+
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">31/10/2025 - Fim do expediente</div>
+                        <div class="sale-value">R$ 3.750,00</div>
+                        <div class="sale-commission">Comissão: R$ 37,50 (1%)</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-success">Pago</span>
+                        <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                    </div>
+                </div>
+
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">30/10/2025 - Fim do expediente</div>
+                        <div class="sale-value">R$ 4.100,00</div>
+                        <div class="sale-commission">Comissão: R$ 41,00 (1%)</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-success">Pago</span>
+                        <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                    </div>
+                </div>
+
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">29/10/2025 - Fim do expediente</div>
+                        <div class="sale-value">R$ 2.890,00</div>
+                        <div class="sale-commission">Comissão: R$ 28,90 (1%)</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-success">Pago</span>
+                        <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PÁGINA COMISSÕES -->
+        <div class="page-view" id="commissionsView">
+            <div class="commission-summary">
+                <div class="summary-header">
+                    <div class="summary-label">Comissão Total do Mês</div>
+                    <div class="summary-value">R$ 1.834,50</div>
+                    <div class="summary-detail">Novembro 2025 • Taxa de 1%</div>
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-item-label">Aprovado</div>
+                        <div class="summary-item-value" style="color: var(--info);">R$ 1.410,00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-item-label">Pago</div>
+                        <div class="summary-item-value" style="color: var(--success);">R$ 1.200,00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-item-label">Pendente</div>
+                        <div class="summary-item-value" style="color: var(--warning);">R$ 210,00</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-item-label">A Receber</div>
+                        <div class="summary-item-value" style="color: var(--primary);">R$ 424,50</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Histórico de Comissões</h2>
+            </div>
+
+            <div class="sales-list">
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">Outubro 2025</div>
+                        <div class="sale-value">R$ 1.647,30</div>
+                        <div class="sale-commission">Total vendido: R$ 164.730,00</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-success">Pago em 05/11</span>
+                    </div>
+                </div>
+
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">Setembro 2025</div>
+                        <div class="sale-value">R$ 1.523,80</div>
+                        <div class="sale-commission">Total vendido: R$ 152.380,00</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-success">Pago em 05/10</span>
+                    </div>
+                </div>
+
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">Agosto 2025</div>
+                        <div class="sale-value">R$ 1.892,50</div>
+                        <div class="sale-commission">Total vendido: R$ 189.250,00</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-success">Pago em 05/09</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Informações de Pagamento</h2>
+            </div>
+
+            <div style="background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); border: 1px solid var(--gray-100);">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <div style="width: 48px; height: 48px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px;">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 2px;">Como funciona?</h4>
+                        <p style="font-size: 13px; color: var(--gray-500);">Entenda o processo de pagamento</p>
+                    </div>
+                </div>
+                <ul style="list-style: none; padding: 0; color: var(--gray-600); font-size: 14px; line-height: 1.8;">
+                    <li style="margin-bottom: 8px;">✅ Você lança o valor total vendido no dia</li>
+                    <li style="margin-bottom: 8px;">📊 Gerente revisa e aprova a comissão</li>
+                    <li style="margin-bottom: 8px;">💼 Contabilidade processa o pagamento</li>
+                    <li>💰 Comissão paga até o 5º dia útil do mês</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PÁGINA PERFIL -->
+        <div class="page-view" id="profileView">
+            <div class="profile-header">
+                <div class="profile-avatar-large">{{ user.first_name.0|upper }}{{ user.last_name.0|upper }}</div>
+                <h3 class="profile-name">{{ user.get_full_name|default:user.username }}</h3>
+                <p class="profile-email">{{ user.email }}</p>
+                <span class="profile-status">
+                    <i class="fas fa-check-circle"></i>
+                    Vendedor Ativo
+                </span>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Dados Pessoais</h2>
+            </div>
+
+            <div class="profile-menu">
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>Nome Completo</h4>
+                            <p>{{ user.get_full_name|default:"Não informado" }}</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>E-mail</h4>
+                            <p>{{ user.email }}</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>Telefone</h4>
+                            <p>(31) 99999-9999</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon">
+                            <i class="fas fa-id-card"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>CPF</h4>
+                            <p>***.***.***-**</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Performance</h2>
+            </div>
+
+            <div class="profile-menu">
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>Taxa de Comissão</h4>
+                            <p>1% sobre vendas</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--info);">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>Membro desde</h4>
+                            <p>Janeiro 2024</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>Total Vendido (Histórico)</h4>
+                            <p>R$ 1.847.520,00</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Configurações</h2>
+            </div>
+
+            <div class="profile-menu">
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>Notificações</h4>
+                            <p>Gerenciar alertas</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>Alterar Senha</h4>
+                            <p>Segurança da conta</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="menu-item-text">
+                            <h4>Ajuda & Suporte</h4>
+                            <p>Central de ajuda</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <form method="post" action="{% url 'accounts:logout' %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="menu-item" style="width: 100%; border: none; background: none; text-align: left;">
+                        <div class="menu-item-content">
+                            <div class="menu-item-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <div class="menu-item-text">
+                                <h4 style="color: var(--danger);">Sair da Conta</h4>
+                                <p>Fazer logout do sistema</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right menu-item-arrow"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-view="homeView" onclick="showView('homeView'); return false;">
+            <i class="fas fa-home"></i>
+            <span>Início</span>
+        </a>
+        <a href="#" class="nav-item" data-view="salesView" onclick="showView('salesView'); return false;">
+            <i class="fas fa-chart-line"></i>
+            <span>Vendas</span>
+        </a>
+        <a href="#" class="nav-item" onclick="openModal('newSaleModal'); return false;">
+            <i class="fas fa-plus-circle"></i>
+            <span>Lançar</span>
+        </a>
+        <a href="#" class="nav-item" data-view="commissionsView" onclick="showView('commissionsView'); return false;">
+            <i class="fas fa-percentage"></i>
+            <span>Comissões</span>
+        </a>
+        <a href="#" class="nav-item" data-view="profileView" onclick="showView('profileView'); return false;">
+            <i class="fas fa-user"></i>
+            <span>Perfil</span>
+        </a>
+    </nav>
+
+    <!-- MODAL NOVA VENDA -->
+    <div class="modal" id="newSaleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Lançar Vendas do Dia</h3>
+                <button class="close-btn" onclick="closeModal('newSaleModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="background: rgba(102, 126, 234, 0.1); padding: 14px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--primary);">
+                    <p style="font-size: 13px; color: var(--primary); font-weight: 600;">
+                        <i class="fas fa-info-circle"></i> Lançamento diário: informe o valor total vendido hoje no fim do expediente.
+                    </p>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">Valor Total Vendido Hoje</label>
+                        <input type="number" name="valor_total" class="form-control" placeholder="R$ 0,00" step="0.01" required>
+                        <small style="font-size: 12px; color: var(--gray-500); margin-top: 6px; display: block;">
+                            Sua comissão será calculada automaticamente (1%)
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Data</label>
+                        <input type="date" name="data" class="form-control" value="{{ hoje }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Observações (opcional)</label>
+                        <textarea name="observacoes" class="form-control" rows="3" placeholder="Ex: 3 vendas hoje, 2 via PIX e 1 no cartão..."></textarea>
+                    </div>
+
+                    <div style="background: var(--gray-50); padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 14px; color: var(--gray-600);">Valor digitado:</span>
+                            <span style="font-size: 14px; font-weight: 700; color: var(--gray-900);" id="valorDisplay">R$ 0,00</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 14px; color: var(--gray-600);">Sua comissão (1%):</span>
+                            <span style="font-size: 16px; font-weight: 800; color: var(--success);" id="comissaoDisplay">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-check"></i> Registrar Vendas do Dia
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navegação entre views
+        function showView(viewId) {
+            // Esconder todas as views
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            // Mostrar a view selecionada
+            document.getElementById(viewId).classList.add('active');
+            
+            // Atualizar navegação ativa
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.querySelector(`[data-view="${viewId}"]`)?.classList.add('active');
+            
+            // Scroll para o topo
+            window.scrollTo(0, 0);
+        }
+
+        // Modal
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar modal ao clicar fora
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+
+        // Calcular comissão em tempo real
+        const valorInput = document.querySelector('input[name="valor_total"]');
+        if (valorInput) {
+            valorInput.addEventListener('input', function() {
+                const valor = parseFloat(this.value) || 0;
+                const comissao = valor * 0.01;
+                
+                document.getElementById('valorDisplay').textContent = 
+                    'R$ ' + valor.toFixed(2).replace('.', ',');
+                document.getElementById('comissaoDisplay').textContent = 
+                    'R$ ' + comissao.toFixed(2).replace('.', ',');
+            });
+        }
+
+        // Auto-dismiss de alertas
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.animation = 'fadeIn 0.3s ease reverse';
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
+            });
+        });
+
+        // Filtros de vendas
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>400); font-size: 14px;"></i>
+                    </div>
+                </div>
+
+                <div class="sale-item">
+                    <div class="sale-info">
+                        <div class="sale-date">28/10/2025 - Fim do expediente</div>
+                        <div class="sale-value">R$ 3.750,00</div>
+                        <div class="sale-commission">Comissão: R$ 37,50 (1%)</div>
+                    </div>
+                    <div class="sale-status">
+                        <span class="badge badge-success">Aprovado</span>
+                        <i class="fas fa-chevron-right" style="color: var(--gray-

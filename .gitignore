@@ -1,0 +1,32 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.environments/
+env/
+venv/   
+.env
+ENV/
+# Django specific
+*.log
+staticfiles/
+media/
+db.sqlite3
+# IDE specific
+.vscode/
+.idea/
+*.iml
+# OS specific
+.DS_Store
+Thumbs.db           
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache          
