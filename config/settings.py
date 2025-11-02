@@ -12,6 +12,10 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',') if config('ALLOWE
 
 # Apps
 INSTALLED_APPS = [
+    # Third-party apps
+    'widget_tweaks',
+
+    # Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -22,6 +26,7 @@ INSTALLED_APPS = [
     # Local apps
     'apps.core',
     'apps.accounts',
+    'apps.dashboard',
 ]
 
 # Middleware
@@ -111,4 +116,13 @@ LOGGING = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
+
+LOGIN_REDIRECT_URL = '/TESTE'  # redireciona após login bem-sucedido
+LOGOUT_REDIRECT_URL = '/accounts/login/'  # redireciona após logout
 AUTH_USER_MODEL = 'accounts.User' # Modelo de usuário customizado
+
+
+AUTHENTICATION_BACKENDS = [
+    'apps.core.auth.backends.CPFOrEmailBackend',  # nosso backend custom
+    'django.contrib.auth.backends.ModelBackend', # padrão
+]
