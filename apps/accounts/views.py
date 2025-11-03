@@ -1,7 +1,10 @@
 from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import CreateView
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from apps.core.utils import redirect_user_by_type
+from apps.accounts.forms import SellersCreationForm
+
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
@@ -34,3 +37,13 @@ class CustomLoginView(LoginView):
 
 class CustomLogoutView(LogoutView):
     next_page = '/accounts/login/'
+
+
+class SellersCreateView(CreateView):
+    template_name = 'accounts/sellers_create.html'
+    form_class = SellersCreationForm
+    success_url = '/dashboard/'
+
+    def form_valid(self, form):
+        messages.success(self.request, "Conta criada com sucesso! Faça login para continuar.", extra_tags='success')
+        return super().form_valid(form)

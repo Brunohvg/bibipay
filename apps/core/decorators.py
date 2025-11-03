@@ -1,11 +1,9 @@
 # apps/core/decorators.py
 from functools import wraps
 from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
 from .utils import redirect_user_by_type
 from functools import wraps
 from django.shortcuts import redirect
-from django.urls import reverse
 
 def redirect_by_user_type(view_func):
     """
