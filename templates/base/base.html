@@ -5,10 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="{% block meta_description %}Sistema de Comissões e Geração de Links - BibiPay{% endblock %}">
-    <meta name="author" content="BibiPay">
-    <link href="{% static 'assets/css/base/styles.css' %}" rel="stylesheet">
-    <title>{% block title %}Dashboard Gestor{% endblock %} | BibiPay</title>
+    <meta name="description" content="{% block meta_description %}Sistema de Comissões e Geração de Links - BibipPay{% endblock %}">
+    <meta name="author" content="BibipPay">
+    <title>{% block title %}Dashboard{% endblock %} | BibipPay</title>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -33,6 +32,8 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
+            --sidebar-width: 280px;
+            --sidebar-collapsed: 80px;
         }
 
         * {
@@ -50,275 +51,416 @@
 
         /* SIDEBAR */
         .sidebar {
-            width: 260px;
+            width: var(--sidebar-width);
             height: 100vh;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
             position: fixed;
             left: 0;
             top: 0;
             overflow-y: auto;
+            overflow-x: hidden;
             z-index: 1000;
-            transition: all 0.3s ease;
-            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
         }
 
         .sidebar.collapsed {
-            width: 70px;
+            width: var(--sidebar-collapsed);
         }
 
         .sidebar-brand {
-            padding: 24px 20px;
+            padding: 28px 24px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             color: white;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            position: relative;
         }
 
         .sidebar-brand-icon {
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
             background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 24px;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar-brand-text {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.8px;
             white-space: nowrap;
+            opacity: 1;
+            transition: opacity 0.3s ease;
         }
 
         .sidebar.collapsed .sidebar-brand-text {
-            display: none;
+            opacity: 0;
+            width: 0;
         }
 
         .sidebar-divider {
             height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 12px 0;
+            background: rgba(255, 255, 255, 0.12);
+            margin: 16px 20px;
         }
 
         .sidebar-heading {
-            padding: 12px 20px;
+            padding: 16px 24px 8px;
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.6);
-            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 1px;
+            white-space: nowrap;
+            opacity: 1;
+            transition: opacity 0.3s ease;
         }
 
         .sidebar.collapsed .sidebar-heading {
-            display: none;
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0 12px;
         }
 
         .nav-item {
-            margin: 4px 12px;
+            margin-bottom: 4px;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: rgba(255, 255, 255, 0.85);
+            gap: 14px;
+            padding: 14px 16px;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 12px;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transition: width 0.3s ease;
         }
 
         .nav-link:hover {
             background: rgba(255, 255, 255, 0.15);
             color: white;
-            transform: translateX(3px);
+            transform: translateX(4px);
+        }
+
+        .nav-link:hover::before {
+            width: 4px;
         }
 
         .nav-link.active {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             color: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
         }
 
         .nav-link i {
-            width: 20px;
+            width: 22px;
+            height: 22px;
             text-align: center;
-            font-size: 16px;
+            font-size: 18px;
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .sidebar.collapsed .nav-link span {
-            display: none;
+        .nav-link-text {
+            flex: 1;
+            white-space: nowrap;
+            opacity: 1;
+            transition: opacity 0.3s ease;
         }
 
-        .collapse {
+        .sidebar.collapsed .nav-link-text {
+            opacity: 0;
+            width: 0;
+        }
+
+        .nav-link-arrow {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+            opacity: 1;
+        }
+
+        .sidebar.collapsed .nav-link-arrow {
+            opacity: 0;
+        }
+
+        .nav-link.open .nav-link-arrow {
+            transform: rotate(90deg);
+        }
+
+        /* SUBMENU */
+        .nav-submenu {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-left: 0;
         }
 
-        .collapse.show {
+        .nav-submenu.show {
             max-height: 500px;
         }
 
-        .collapse-inner {
-            padding: 8px 0 8px 48px;
-        }
-
-        .sidebar.collapsed .collapse-inner {
+        .sidebar.collapsed .nav-submenu {
             display: none;
         }
 
-        .collapse-header {
+        .nav-submenu-header {
             font-size: 11px;
             font-weight: 700;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.6);
             text-transform: uppercase;
-            margin-bottom: 8px;
-            margin-top: 12px;
+            padding: 12px 16px 8px 52px;
             letter-spacing: 0.5px;
         }
 
-        .collapse-item {
+        .nav-submenu-item {
             display: block;
-            padding: 8px 12px;
-            color: rgba(255, 255, 255, 0.75);
+            padding: 10px 16px 10px 52px;
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            border-radius: 8px;
-            font-size: 13px;
+            border-radius: 10px;
+            font-size: 14px;
             transition: all 0.2s ease;
-            margin-bottom: 4px;
+            margin: 2px 0;
+            position: relative;
         }
 
-        .collapse-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            padding-left: 16px;
-        }
-
-        .sidebar-toggle {
+        .nav-submenu-item::before {
+            content: '';
             position: absolute;
-            right: -15px;
+            left: 36px;
             top: 50%;
             transform: translateY(-50%);
-            width: 30px;
-            height: 30px;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .nav-submenu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-left: 56px;
+        }
+
+        .nav-submenu-item:hover::before {
+            width: 6px;
+            height: 6px;
+            left: 34px;
+            background: white;
+        }
+
+        .nav-submenu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-submenu-item.active::before {
+            width: 6px;
+            height: 6px;
+            background: white;
+        }
+
+        /* TOGGLE BUTTON */
+        .sidebar-toggle {
+            position: fixed;
+            left: calc(var(--sidebar-width) - 16px);
+            top: 80px;
+            width: 32px;
+            height: 32px;
             background: white;
             border: none;
             border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--primary);
+            font-size: 14px;
             transition: all 0.3s ease;
+            z-index: 1001;
         }
 
         .sidebar-toggle:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+            background: var(--primary);
+            color: white;
         }
 
-        .sidebar.collapsed .sidebar-toggle i {
+        .sidebar.collapsed ~ .sidebar-toggle {
+            left: calc(var(--sidebar-collapsed) - 16px);
+        }
+
+        .sidebar-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed ~ .sidebar-toggle i {
             transform: rotate(180deg);
         }
 
         /* MAIN WRAPPER */
         .main-wrapper {
-            margin-left: 260px;
-            transition: margin-left 0.3s ease;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
         .sidebar.collapsed ~ .main-wrapper {
-            margin-left: 70px;
+            margin-left: var(--sidebar-collapsed);
         }
 
         /* TOPBAR */
         .topbar {
-            height: 70px;
+            height: 72px;
             background: white;
             border-bottom: 1px solid var(--gray-200);
             display: flex;
             align-items: center;
-            padding: 0 30px;
-            gap: 20px;
+            padding: 0 32px;
+            gap: 24px;
             position: sticky;
             top: 0;
             z-index: 999;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
         }
 
         .mobile-toggle {
             display: none;
-            width: 40px;
-            height: 40px;
-            background: none;
+            width: 44px;
+            height: 44px;
+            background: var(--gray-50);
             border: none;
-            color: var(--gray-600);
+            color: var(--gray-700);
             font-size: 20px;
             cursor: pointer;
-            border-radius: 8px;
+            border-radius: 12px;
             transition: all 0.2s ease;
         }
 
         .mobile-toggle:hover {
             background: var(--gray-100);
+            color: var(--primary);
         }
 
         .search-wrapper {
             position: relative;
             flex: 1;
-            max-width: 500px;
+            max-width: 550px;
         }
 
         .search-icon {
             position: absolute;
-            left: 14px;
+            left: 16px;
             top: 50%;
             transform: translateY(-50%);
             color: var(--gray-400);
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .search-input {
             width: 100%;
-            padding: 10px 14px 10px 38px;
+            padding: 12px 16px 12px 46px;
             border: 2px solid var(--gray-200);
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 12px;
+            font-size: 15px;
             outline: none;
             transition: all 0.3s ease;
             background: var(--gray-50);
+            font-family: 'Inter', sans-serif;
         }
 
         .search-input:focus {
             border-color: var(--primary);
             background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .topbar-actions {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             margin-left: auto;
+        }
+
+        .topbar-icon-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--gray-50);
+            border: none;
+            border-radius: 12px;
+            color: var(--gray-600);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .topbar-icon-btn:hover {
+            background: var(--gray-100);
+            color: var(--primary);
         }
 
         .topbar-divider {
             width: 1px;
-            height: 30px;
+            height: 32px;
             background: var(--gray-200);
+            margin: 0 8px;
         }
 
         .user-dropdown {
@@ -328,149 +470,76 @@
         .user-trigger {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             cursor: pointer;
             padding: 8px 12px;
-            border-radius: 10px;
+            border-radius: 12px;
             transition: all 0.2s ease;
         }
 
         .user-trigger:hover {
-            background: var(--gray-100);
+            background: var(--gray-50);
         }
 
         .user-avatar {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
 
         .user-name {
             font-size: 14px;
             font-weight: 600;
-            color: var(--gray-700);
+            color: var(--gray-900);
+            line-height: 1;
+        }
+
+        .user-role {
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .user-arrow {
+            color: var(--gray-400);
+            font-size: 12px;
+            margin-left: 4px;
         }
 
         /* CONTENT */
         .content {
             flex: 1;
-            padding: 30px;
+            padding: 32px;
         }
 
         .page-header {
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         .page-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--gray-900);
-            margin-bottom: 6px;
-        }
-
-        .page-subtitle {
-            color: var(--gray-500);
-            font-size: 14px;
-        }
-
-        /* STATS CARDS */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            transition: all 0.3s ease;
-            border: 1px solid var(--gray-100);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-
-        .stat-card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-        }
-
-        .stat-card-icon.primary {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            color: var(--primary);
-        }
-
-        .stat-card-icon.success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .stat-card-icon.warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-
-        .stat-card-icon.info {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info);
-        }
-
-        .stat-card-trend {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
-
-        .stat-card-trend.up {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .stat-card-trend.down {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        .stat-card-value {
             font-size: 32px;
             font-weight: 800;
             color: var(--gray-900);
-            margin-bottom: 4px;
-            line-height: 1;
+            margin-bottom: 8px;
+            letter-spacing: -0.8px;
         }
 
-        .stat-card-label {
-            font-size: 14px;
-            color: var(--gray-500);
-            font-weight: 500;
+        .page-subtitle {
+            color: var(--gray-600);
+            font-size: 15px;
         }
 
         /* CARD */
@@ -484,96 +553,81 @@
         }
 
         .card-header {
-            padding: 20px 24px;
+            padding: 24px 28px;
             border-bottom: 1px solid var(--gray-100);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: white;
         }
 
         .card-title {
             font-size: 18px;
             font-weight: 700;
             color: var(--gray-900);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .card-body {
-            padding: 24px;
+            padding: 28px;
         }
 
-        /* TABLE */
-        .table-responsive {
-            overflow-x: auto;
+        /* FORM */
+        .form-group {
+            margin-bottom: 20px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: var(--gray-50);
-        }
-
-        th {
-            padding: 14px 16px;
-            text-align: left;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--gray-700);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 16px;
-            border-top: 1px solid var(--gray-100);
-            font-size: 14px;
-            color: var(--gray-700);
-        }
-
-        tr:hover td {
-            background: var(--gray-50);
-        }
-
-        /* BADGE */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+        .form-label {
+            display: block;
             font-weight: 600;
-            white-space: nowrap;
+            color: var(--gray-700);
+            margin-bottom: 8px;
+            font-size: 14px;
         }
 
-        .badge-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
+        .form-control,
+        .form-control-lg {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: var(--gray-50);
+            font-family: 'Inter', sans-serif;
         }
 
-        .badge-warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
+        .form-control:focus,
+        .form-control-lg:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .badge-danger {
-            background: rgba(239, 68, 68, 0.1);
+        .form-control.is-invalid,
+        .form-control.error,
+        .form-control-lg.is-invalid,
+        .form-control-lg.error {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .form-error {
             color: var(--danger);
-        }
-
-        .badge-info {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--info);
+            font-size: 12px;
+            margin-top: 6px;
+            display: block;
+            font-weight: 500;
         }
 
         /* BUTTON */
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 10px 18px;
+            padding: 12px 24px;
             border: none;
             border-radius: 10px;
             font-size: 14px;
@@ -581,6 +635,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
+            font-family: 'Inter', sans-serif;
         }
 
         .btn-primary {
@@ -594,9 +649,22 @@
             box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
         }
 
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+        }
+
         /* FOOTER */
         .footer {
-            padding: 20px 30px;
+            padding: 24px 32px;
             background: white;
             border-top: 1px solid var(--gray-200);
             text-align: center;
@@ -609,12 +677,28 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 18px;
+            padding: 16px 20px;
             border-radius: 12px;
             font-size: 14px;
             font-weight: 500;
             margin-bottom: 24px;
             border-left: 4px solid;
+            animation: slideInDown 0.4s ease;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert i {
+            font-size: 20px;
         }
 
         .alert-success {
@@ -642,6 +726,25 @@
             border-color: #3b82f6;
         }
 
+        /* OVERLAY */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 1024px) {
             .sidebar {
@@ -652,8 +755,12 @@
                 transform: translateX(0);
             }
 
+            .sidebar-toggle {
+                display: none;
+            }
+
             .main-wrapper {
-                margin-left: 0;
+                margin-left: 0 !important;
             }
 
             .mobile-toggle {
@@ -661,7 +768,7 @@
             }
 
             .search-wrapper {
-                display: none;
+                max-width: none;
             }
         }
 
@@ -671,24 +778,35 @@
             }
 
             .topbar {
-                padding: 0 15px;
+                padding: 0 16px;
+                height: 64px;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .user-name {
+            .user-info,
+            .user-arrow {
                 display: none;
+            }
+
+            .search-wrapper {
+                display: none;
+            }
+
+            .page-title {
+                font-size: 24px;
             }
         }
     </style>
 
-    {% block extra_css %}{% endblock %}
+    {% block extra_css %}
+    
+    {% endblock %}
     {% block extra_head %}{% endblock %}
 </head>
 
 <body>
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
@@ -696,17 +814,17 @@
                 <i class="fas fa-link"></i>
             </div>
             <div class="sidebar-brand-text">
-                BibiPay<sup style="font-size: 9px;">PRO</sup>
+                BibipPay<sup style="font-size: 9px;">PRO</sup>
             </div>
         </div>
 
         <div class="sidebar-divider"></div>
 
-        <ul style="list-style: none; padding: 0;">
+        <ul class="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link active {% block nav_dashboard %}{% endblock %}" href="#">
+                <a class="nav-link {% block nav_dashboard %}{% endblock %}" href="{% url "dashboard:dashboard" %}">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <span class="nav-link-text">Dashboard</span>
                 </a>
             </li>
         </ul>
@@ -714,66 +832,62 @@
         <div class="sidebar-divider"></div>
         <div class="sidebar-heading">Gestão de Vendas</div>
 
-        <ul style="list-style: none; padding: 0;">
+        <ul class="sidebar-nav">
             {% block sidebar_menu %}
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="toggleCollapse('collapseVendedores')">
+                <a class="nav-link" href="javascript:void(0);" data-toggle="vendedores">
                     <i class="fas fa-users"></i>
-                    <span>Vendedores</span>
+                    <span class="nav-link-text">Vendedores</span>
+                    <i class="fas fa-chevron-right nav-link-arrow"></i>
                 </a>
-                <div id="collapseVendedores" class="collapse">
-                    <div class="collapse-inner">
-                        <h6 class="collapse-header">Gerenciamento</h6>
-                        <a class="collapse-item" href="#">Lista de Vendedores</a>
-                        <a class="collapse-item" href="#">Cadastrar Novo</a>
-                        <a class="collapse-item" href="#">Equipes</a>
-                    </div>
-                </div>
+                <ul class="nav-submenu" id="submenu-vendedores">
+                    <li class="nav-submenu-header">Gerenciamento</li>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Lista de Vendedores</a>
+                    <a class="nav-submenu-item" href="{% url "accounts:sellers_create" %}">Cadastrar Novo</a>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Equipes</a>
+                </ul>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="toggleCollapse('collapseComissoes')">
+                <a class="nav-link" href="javascript:void(0);" data-toggle="comissoes">
                     <i class="fas fa-percentage"></i>
-                    <span>Comissões</span>
+                    <span class="nav-link-text">Comissões</span>
+                    <i class="fas fa-chevron-right nav-link-arrow"></i>
                 </a>
-                <div id="collapseComissoes" class="collapse">
-                    <div class="collapse-inner">
-                        <h6 class="collapse-header">Comissões</h6>
-                        <a class="collapse-item" href="#">Acompanhamento</a>
-                        <a class="collapse-item" href="#">Histórico</a>
-                        <a class="collapse-item" href="#">Configurações</a>
-                    </div>
-                </div>
+                <ul class="nav-submenu" id="submenu-comissoes">
+                    <li class="nav-submenu-header">Comissões</li>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Acompanhamento</a>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Histórico</a>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Configurações</a>
+                </ul>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="toggleCollapse('collapseLinks')">
+                <a class="nav-link" href="javascript:void(0);" data-toggle="links">
                     <i class="fas fa-qrcode"></i>
-                    <span>Links de Pagamento</span>
+                    <span class="nav-link-text">Links de Pagamento</span>
+                    <i class="fas fa-chevron-right nav-link-arrow"></i>
                 </a>
-                <div id="collapseLinks" class="collapse">
-                    <div class="collapse-inner">
-                        <h6 class="collapse-header">Gestão de Links</h6>
-                        <a class="collapse-item" href="#">Gerar Link</a>
-                        <a class="collapse-item" href="#">Links Ativos</a>
-                        <a class="collapse-item" href="#">Histórico</a>
-                    </div>
-                </div>
+                <ul class="nav-submenu" id="submenu-links">
+                    <li class="nav-submenu-header">Gestão de Links</li>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Gerar Link</a>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Links Ativos</a>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Histórico</a>
+                </ul>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="#" onclick="toggleCollapse('collapseRelatorios')">
+                <a class="nav-link" href="javascript:void(0);" data-toggle="relatorios">
                     <i class="fas fa-chart-bar"></i>
-                    <span>Relatórios</span>
+                    <span class="nav-link-text">Relatórios</span>
+                    <i class="fas fa-chevron-right nav-link-arrow"></i>
                 </a>
-                <div id="collapseRelatorios" class="collapse">
-                    <div class="collapse-inner">
-                        <h6 class="collapse-header">Análises</h6>
-                        <a class="collapse-item" href="#">Vendas</a>
-                        <a class="collapse-item" href="#">Comissões</a>
-                        <a class="collapse-item" href="#">Performance</a>
-                    </div>
-                </div>
+                <ul class="nav-submenu" id="submenu-relatorios">
+                    <li class="nav-submenu-header">Análises</li>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Vendas</a>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Comissões</a>
+                    <a class="nav-submenu-item" href="javascript:void(0);">Performance</a>
+                </ul>
             </li>
             {% endblock %}
         </ul>
@@ -781,34 +895,35 @@
         <div class="sidebar-divider"></div>
         <div class="sidebar-heading">Sistema</div>
 
-        <ul style="list-style: none; padding: 0;">
+        <ul class="sidebar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="javascript:void(0);">
                     <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
+                    <span class="nav-link-text">Configurações</span>
                 </a>
             </li>
             <li class="nav-item">
-                <form id="logout-form" method="post" action="{% url 'accounts:logout' %}" style="display: inline;">
+                <form id="logout-form" method="post" action="{% url 'accounts:logout' %}" style="display: inline; margin: 0; width: 100%;">
                     {% csrf_token %}
-                    <a class="nav-link" href="#" onclick="document.getElementById('logout-form').submit(); return false;">
+                    <a class="nav-link" href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();">
                         <i class="fas fa-sign-out-alt"></i>
-                        <span>Sair</span>
+                        <span class="nav-link-text">Sair</span>
                     </a>
                 </form>
             </li>
         </ul>
-
-        <button class="sidebar-toggle" onclick="toggleSidebar()">
-            <i class="fas fa-chevron-left"></i>
-        </button>
     </aside>
+
+    <!-- TOGGLE BUTTON -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-chevron-left"></i>
+    </button>
 
     <!-- MAIN WRAPPER -->
     <div class="main-wrapper" id="mainWrapper">
         <!-- TOPBAR -->
         <header class="topbar">
-            <button class="mobile-toggle" onclick="toggleMobileSidebar()">
+            <button class="mobile-toggle" id="mobileToggle">
                 <i class="fas fa-bars"></i>
             </button>
 
@@ -818,15 +933,22 @@
             </div>
 
             <div class="topbar-actions">
-                {% block topbar_actions %}{% endblock %}
+                {% block topbar_actions %}
+                <button class="topbar-icon-btn">
+                    <i class="fas fa-bell"></i>
+                </button>
+                {% endblock %}
 
                 <div class="topbar-divider"></div>
 
                 <div class="user-dropdown">
                     <div class="user-trigger">
-                        <div class="user-avatar">{{ user.first_name.0|upper }}{{ user.last_name.0|upper }}</div>
-                        <span class="user-name">#</span>
-                        <i class="fas fa-chevron-down" style="font-size: 11px; color: var(--gray-400);"></i>
+                        <div class="user-avatar">{{ user.first_name.0|upper|default:"U" }}{{ user.last_name.0|upper|default:"S" }}</div>
+                        <div class="user-info">
+                            <span class="user-name">{{ user.first_name|default:user.first_name }}</span>
+                            <span class="user-role">Gestor</span>
+                        </div>
+                        <i class="fas fa-chevron-down user-arrow"></i>
                     </div>
                 </div>
             </div>
@@ -837,7 +959,7 @@
             {% block breadcrumb %}{% endblock %}
 
             <div class="page-header">
-                <h1 class="page-title">{% block page_title %}Dashboard Gestor{% endblock %}</h1>
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
                 <p class="page-subtitle">{% block page_subtitle %}Visão geral de vendas e comissões{% endblock %}</p>
             </div>
 
@@ -845,204 +967,170 @@
                 {% for message in messages %}
                     <div class="alert alert-{{ message.tags|default:'info' }}">
                         {% if message.tags == 'error' or message.tags == 'danger' %}
-                            <i class="fas fa-exclamation-circle" style="font-size: 18px;"></i>
+                            <i class="fas fa-exclamation-circle"></i>
                         {% elif message.tags == 'success' %}
-                            <i class="fas fa-check-circle" style="font-size: 18px;"></i>
+                            <i class="fas fa-check-circle"></i>
                         {% elif message.tags == 'warning' %}
-                            <i class="fas fa-exclamation-triangle" style="font-size: 18px;"></i>
+                            <i class="fas fa-exclamation-triangle"></i>
                         {% else %}
-                            <i class="fas fa-info-circle" style="font-size: 18px;"></i>
+                            <i class="fas fa-info-circle"></i>
                         {% endif %}
-                        <span style="flex: 1;">{{ message }}</span>
+                        <span>{{ message }}</span>
                     </div>
                 {% endfor %}
             {% endif %}
 
-            {% block content %}
-            <!-- CARDS DE ESTATÍSTICAS -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div class="stat-card-icon primary">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="stat-card-trend up">
-                            <i class="fas fa-arrow-up"></i>
-                            12.5%
-                        </div>
-                    </div>
-                    <div class="stat-card-value">R$ 45.890</div>
-                    <div class="stat-card-label">Vendas do Mês</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div class="stat-card-icon success">
-                            <i class="fas fa-percentage"></i>
-                        </div>
-                        <div class="stat-card-trend up">
-                            <i class="fas fa-arrow-up"></i>
-                            8.2%
-                        </div>
-                    </div>
-                    <div class="stat-card-value">R$ 6.883</div>
-                    <div class="stat-card-label">Comissões a Pagar</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div class="stat-card-icon warning">
-                            <i class="fas fa-link"></i>
-                        </div>
-                        <div class="stat-card-trend up">
-                            <i class="fas fa-arrow-up"></i>
-                            15.8%
-                        </div>
-                    </div>
-                    <div class="stat-card-value">387</div>
-                    <div class="stat-card-label">Links Gerados</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-card-header">
-                        <div class="stat-card-icon info">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stat-card-trend down">
-                            <i class="fas fa-arrow-down"></i>
-                            2.1%
-                        </div>
-                    </div>
-                    <div class="stat-card-value">24</div>
-                    <div class="stat-card-label">Vendedores Ativos</div>
-                </div>
-            </div>
-
-            <!-- TABELA DE VENDEDORES TOP -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">🏆 Top Vendedores do Mês</h3>
-                    <a href="#" class="btn btn-primary">
-                        <i class="fas fa-chart-line"></i>
-                        Ver Relatório Completo
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Vendedor</th>
-                                    <th>Vendas</th>
-                                    <th>Valor Total</th>
-                                    <th>Comissão</th>
-                                    <th>Status</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 13px;">JM</div>
-                                            <div>
-                                                <div style="font-weight: 600; color: var(--gray-900);">João Martins</div>
-                                                <div style="font-size: 12px; color: var(--gray-500);">joao@email.com</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><strong>142</strong> vendas</td>
-                                    <td><strong>R$ 18.450,00</strong></td>
-                                    <td><strong style="color: var(--success);">R$ 2.767,50</strong></td>
-                                    <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Ativo</span></td>
-                                    <td>
-                                        <button class="btn" style="padding: 6px 12px; font-size: 13px; background: var(--gray-100); color: var(--gray-700);">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 13px;">MS</div>
-                                            <div>
-                                                <div style="font-weight: 600; color: var(--gray-900);">Maria Silva</div>
-                                                <div style="font-size: 12px; color: var(--gray-500);">maria@email.com</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><strong>128</strong> vendas</td>
-                                    <td><strong>R$ 15.230,00</strong></td>
-                                    <td><strong style="color: var(--success);">R$ 2.284,50</strong></td>
-                                    <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Ativo</span></td>
-                                    <td>
-                                        <button class="btn" style="padding: 6px 12px; font-size: 13px; background: var(--gray-100); color: var(--gray-700);">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 13px;">PA</div>
-                                            <div>
-                                                <div style="font-weight: 600; color: var(--gray-900);">Pedro Alves</div>
-                                                <div style="font-size: 12px; color: var(--gray-500);">pedro@email.com</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><strong>95</strong> vendas</td>
-                                    <td><strong>R$ 12.210,00</strong></td>
-                                    <td><strong style="color: var(--success);">R$ 1.831,50</strong></td>
-                                    <td><span class="badge badge-warning"><i class="fas fa-clock"></i> Pendente</span></td>
-                                    <td>
-                                        <button class="btn" style="padding: 6px 12px; font-size: 13px; background: var(--gray-100); color: var(--gray-700);">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {% endblock %}
+            {% block content %}{% endblock %}
         </main>
 
         <!-- FOOTER -->
         <footer class="footer">
-            <span>Copyright &copy; BibiPay 2025 | Todos os direitos reservados</span>
+            <span>Copyright &copy; BibipPay 2025 | Todos os direitos reservados</span>
         </footer>
     </div>
 
     <!-- SCRIPTS -->
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
+        // Toggle Sidebar Desktop
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        
+        sidebarToggle.addEventListener('click', function() {
             sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+
+        // Restaurar estado do sidebar
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            sidebar.classList.add('collapsed');
         }
 
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('mobile-open');
-        }
+        // Toggle Sidebar Mobile
+        const mobileToggle = document.getElementById('mobileToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.add('mobile-open');
+            sidebarOverlay.classList.add('show');
+        });
 
-        function toggleCollapse(id) {
-            const element = document.getElementById(id);
-            element.classList.toggle('show');
-        }
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.remove('mobile-open');
+            sidebarOverlay.classList.remove('show');
+        });
 
-        // Fechar sidebar no mobile ao clicar fora
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const toggle = document.querySelector('.mobile-toggle');
-            
-            if (window.innerWidth <= 1024 && 
-                !sidebar.contains(event.target) && 
-                !toggle.contains(event.target) &&
-                sidebar.classList.contains('mobile-open')) {
-                sidebar.classList.remove('mobile-open');
+        // Toggle Submenus
+        document.querySelectorAll('.nav-link[data-toggle]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const submenuId = 'submenu-' + this.getAttribute('data-toggle');
+                const submenu = document.getElementById(submenuId);
+                const isOpen = submenu.classList.contains('show');
+                
+                // Fechar outros submenus
+                document.querySelectorAll('.nav-submenu').forEach(menu => {
+                    if (menu.id !== submenuId) {
+                        menu.classList.remove('show');
+                    }
+                });
+                
+                // Remover classe open de outros links
+                document.querySelectorAll('.nav-link[data-toggle]').forEach(l => {
+                    if (l !== this) {
+                        l.classList.remove('open');
+                    }
+                });
+                
+                // Toggle do submenu atual
+                submenu.classList.toggle('show');
+                this.classList.toggle('open');
+                
+                // Salvar estado
+                localStorage.setItem('submenu-' + this.getAttribute('data-toggle'), !isOpen);
+            });
+        });
+
+        // Restaurar estado dos submenus
+        document.querySelectorAll('.nav-link[data-toggle]').forEach(link => {
+            const toggleId = link.getAttribute('data-toggle');
+            if (localStorage.getItem('submenu-' + toggleId) === 'true') {
+                const submenu = document.getElementById('submenu-' + toggleId);
+                submenu.classList.add('show');
+                link.classList.add('open');
             }
+        });
+
+        // Marcar página ativa no menu
+        const currentPath = window.location.pathname;
+        
+        // Verificar links do submenu
+        document.querySelectorAll('.nav-submenu-item').forEach(item => {
+            if (item.href && item.href !== 'javascript:void(0);') {
+                const itemPath = new URL(item.href).pathname;
+                if (currentPath === itemPath) {
+                    // Marcar item como ativo
+                    item.classList.add('active');
+                    
+                    // Abrir o submenu pai
+                    const submenu = item.closest('.nav-submenu');
+                    if (submenu) {
+                        submenu.classList.add('show');
+                        
+                        // Marcar o link pai como open
+                        const parentLink = submenu.previousElementSibling;
+                        if (parentLink && parentLink.classList.contains('nav-link')) {
+                            parentLink.classList.add('open');
+                        }
+                    }
+                }
+            }
+        });
+
+        // Verificar links principais
+        document.querySelectorAll('.sidebar-nav > .nav-item > .nav-link').forEach(link => {
+            if (link.href && link.href !== 'javascript:void(0);') {
+                const linkPath = new URL(link.href).pathname;
+                if (currentPath === linkPath) {
+                    link.classList.add('active');
+                }
+            }
+        });
+
+        // Auto-dismiss alerts
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.animation = 'slideInDown 0.3s ease reverse';
+                    setTimeout(() => alert.remove(), 300);
+                }, 5000);
+            });
+        });
+
+        // Fechar sidebar mobile ao clicar em um link
+        document.querySelectorAll('.nav-link, .nav-submenu-item').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 1024) {
+                    sidebar.classList.remove('mobile-open');
+                    sidebarOverlay.classList.remove('show');
+                }
+            });
+        });
+
+        // Prevenir scroll do body quando sidebar mobile está aberta
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.target.classList.contains('mobile-open')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        observer.observe(sidebar, {
+            attributes: true,
+            attributeFilter: ['class']
         });
     </script>
     <script src="{% static 'assets/js/core/scripts.js' %}"></script>

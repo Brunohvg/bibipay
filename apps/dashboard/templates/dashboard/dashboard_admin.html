@@ -1,1 +1,95 @@
 {% extends "base/base.html" %}
+
+{% block title %}Dashboard Admin{% endblock %}
+{% block page_title %}Painel Administrativo{% endblock %}
+
+{% block content %}
+            <!-- TABELA DE VENDEDORES TOP -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🏆 Top Vendedores do Mês</h3>
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-chart-line"></i>
+                        Ver Relatório Completo
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Vendedor</th>
+                                    <th>Vendas</th>
+                                    <th>Valor Total</th>
+                                    <th>Comissão</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 13px;">JM</div>
+                                            <div>
+                                                <div style="font-weight: 600; color: var(--gray-900);">João Martins</div>
+                                                <div style="font-size: 12px; color: var(--gray-500);">joao@email.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><strong>142</strong> vendas</td>
+                                    <td><strong>R$ 18.450,00</strong></td>
+                                    <td><strong style="color: var(--success);">R$ 2.767,50</strong></td>
+                                    <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Ativo</span></td>
+                                    <td>
+                                        <button class="btn" style="padding: 6px 12px; font-size: 13px; background: var(--gray-100); color: var(--gray-700);">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 13px;">MS</div>
+                                            <div>
+                                                <div style="font-weight: 600; color: var(--gray-900);">Maria Silva</div>
+                                                <div style="font-size: 12px; color: var(--gray-500);">maria@email.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><strong>128</strong> vendas</td>
+                                    <td><strong>R$ 15.230,00</strong></td>
+                                    <td><strong style="color: var(--success);">R$ 2.284,50</strong></td>
+                                    <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Ativo</span></td>
+                                    <td>
+                                        <button class="btn" style="padding: 6px 12px; font-size: 13px; background: var(--gray-100); color: var(--gray-700);">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 13px;">PA</div>
+                                            <div>
+                                                <div style="font-weight: 600; color: var(--gray-900);">Pedro Alves</div>
+                                                <div style="font-size: 12px; color: var(--gray-500);">pedro@email.com</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><strong>95</strong> vendas</td>
+                                    <td><strong>R$ 12.210,00</strong></td>
+                                    <td><strong style="color: var(--success);">R$ 1.831,50</strong></td>
+                                    <td><span class="badge badge-warning"><i class="fas fa-clock"></i> Pendente</span></td>
+                                    <td>
+                                        <button class="btn" style="padding: 6px 12px; font-size: 13px; background: var(--gray-100); color: var(--gray-700);">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+{% endblock %}

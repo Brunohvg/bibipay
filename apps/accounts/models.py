@@ -52,7 +52,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     cpf = models.CharField(
-        max_length=11,
+        max_length=14,
         unique=True,
         db_index=True,
         validators=[cpf_validator],
