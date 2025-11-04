@@ -55,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
         max_length=14,
         unique=True,
         db_index=True,
-        validators=[cpf_validator],
+        #validators=[cpf_validator],
         blank=True,
         null=True
     )
