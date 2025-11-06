@@ -8,6 +8,7 @@ class SellersCreationForm(UserCreationForm):
         max_digits=5,
         decimal_places=2,
         initial=1.00,
+        required=False,  # Pode ser nulo, caso seja admin
         widget=forms.NumberInput(attrs={
             'class': 'form-control form-control-lg has-icon',
             'placeholder': 'Ex: 1.00 para 1%',
@@ -15,33 +16,30 @@ class SellersCreationForm(UserCreationForm):
             'min': '0',
         }),
     )
+
     password1 = forms.CharField(
         label='Senha',
         strip=False,
-        widget=forms.PasswordInput(
-            attrs={
-                'class': 'form-control form-control-lg has-icon',
-                'placeholder': 'Mínimo 8 caracteres',
-                'autocomplete': 'new-password',
-            }
-        ),
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control form-control-lg has-icon',
+            'placeholder': 'Mínimo 8 caracteres',
+            'autocomplete': 'new-password',
+        }),
     )
 
     password2 = forms.CharField(
         label='Confirmar Senha',
         strip=False,
-        widget=forms.PasswordInput(
-            attrs={
-                'class': 'form-control form-control-lg has-icon',
-                'placeholder': 'Digite novamente a senha',
-                'autocomplete': 'new-password',
-            }
-        ),
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control form-control-lg has-icon',
+            'placeholder': 'Digite novamente a senha',
+            'autocomplete': 'new-password',
+        }),
     )
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = ('first_name', 'last_name', 'email', 'cpf')
+        fields = ('first_name', 'last_name', 'email', 'cpf', 'commission_rate')  # <-- adicionado aqui
         labels = {
             'first_name': 'Nome',
             'last_name': 'Sobrenome',
@@ -69,11 +67,10 @@ class SellersCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Remove help texts padrão do UserCreationForm
+
         for field_name in ['password1', 'password2']:
             self.fields[field_name].help_text = None
 
-        # Ajusta mensagens de erro amigáveis
         self.fields['email'].error_messages = {
             'unique': 'Este e-mail já está cadastrado.',
             'invalid': 'Digite um e-mail válido.'
@@ -82,6 +79,15 @@ class SellersCreationForm(UserCreationForm):
             'invalid': 'Digite um CPF válido no formato 000.000.000-00.'
         }
 
-        # Marca todos os campos como obrigatórios
         for field in self.fields.values():
             field.required = True
+
+    def save(self, commit=True):
+        """Salva o vendedor com a comissão configurada corretamente."""
+        user = super().save(commit=False)
+        commission_rate = self.cleaned_data.get('commission_rate')
+        if commission_rate is not None:
+            user.commission_rate = commission_rate
+        if commit:
+            user.save()
+        return user
