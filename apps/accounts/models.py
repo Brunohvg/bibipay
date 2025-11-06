@@ -1,4 +1,5 @@
 import re
+from tkinter import N
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.validators import RegexValidator
@@ -65,6 +66,15 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE, default='sellers')
+    commission_rate = models.DecimalField(
+    verbose_name='Taxa de Comissão (%)',
+    max_digits=5,
+    decimal_places=2,
+    default=None,
+    blank=True,
+    null=True,
+    help_text='Porcentagem da comissão sobre o total de vendas'
+    )
 
     objects = UserManager()
 

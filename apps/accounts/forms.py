@@ -3,6 +3,18 @@ from django.contrib.auth.forms import UserCreationForm
 from apps.accounts.models import User
 
 class SellersCreationForm(UserCreationForm):
+    commission_rate = forms.DecimalField(
+        label='Taxa de Comissão (%)',
+        max_digits=5,
+        decimal_places=2,
+        initial=1.00,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control form-control-lg has-icon',
+            'placeholder': 'Ex: 1.00 para 1%',
+            'step': '0.01',
+            'min': '0',
+        }),
+    )
     password1 = forms.CharField(
         label='Senha',
         strip=False,

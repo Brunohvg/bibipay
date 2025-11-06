@@ -50,6 +50,7 @@
         display: flex;
         gap: 12px;
         align-items: center;
+        flex-wrap: wrap;
     }
 
     .filter-btn {
@@ -321,22 +322,9 @@
         .sellers-grid {
             grid-template-columns: 1fr;
         }
-
         .toolbar {
             flex-direction: column;
             align-items: stretch;
-        }
-
-        .search-box {
-            max-width: none;
-        }
-
-        .filter-group {
-            flex-wrap: wrap;
-        }
-
-        .stats-bar {
-            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -346,9 +334,7 @@
 <!-- Stats Bar -->
 <div class="stats-bar">
     <div class="stat-box">
-        <div class="stat-icon primary">
-            <i class="fas fa-users"></i>
-        </div>
+        <div class="stat-icon primary"><i class="fas fa-users"></i></div>
         <div class="stat-content">
             <h4>{{ sellers|length }}</h4>
             <p>Total de Vendedores</p>
@@ -356,21 +342,17 @@
     </div>
 
     <div class="stat-box">
-        <div class="stat-icon success">
-            <i class="fas fa-check-circle"></i>
-        </div>
+        <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
         <div class="stat-content">
-            <h4>#</h4>
+            <h4>{{ sellers|dictsort:"is_active"|length }}</h4>
             <p>Ativos</p>
         </div>
     </div>
 
     <div class="stat-box">
-        <div class="stat-icon danger">
-            <i class="fas fa-times-circle"></i>
-        </div>
+        <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
         <div class="stat-content">
-            <h4>#####</h4>
+            <h4>{{ sellers|length|add:"-1" }}</h4>
             <p>Inativos</p>
         </div>
     </div>
@@ -384,21 +366,11 @@
     </div>
 
     <div class="filter-group">
-        <button class="filter-btn active" data-filter="all">
-            <i class="fas fa-list"></i>
-            Todos
-        </button>
-        <button class="filter-btn" data-filter="active">
-            <i class="fas fa-check"></i>
-            Ativos
-        </button>
-        <button class="filter-btn" data-filter="inactive">
-            <i class="fas fa-times"></i>
-            Inativos
-        </button>
+        <button class="filter-btn active" data-filter="all"><i class="fas fa-list"></i> Todos</button>
+        <button class="filter-btn" data-filter="active"><i class="fas fa-check"></i> Ativos</button>
+        <button class="filter-btn" data-filter="inactive"><i class="fas fa-times"></i> Inativos</button>
         <a href="{% url 'accounts:sellers_create' %}" class="btn btn-primary">
-            <i class="fas fa-plus"></i>
-            Novo Vendedor
+            <i class="fas fa-plus"></i> Novo Vendedor
         </a>
     </div>
 </div>
@@ -407,11 +379,9 @@
 {% if sellers %}
 <div class="sellers-grid" id="sellersGrid">
     {% for seller in sellers %}
-    <div class="seller-card" data-status="{{ seller.is_active|yesno:'active,inactive' }}" onclick="window.location.href='{% url 'accounts:sellers_detail' seller.pk %}'">
+    <div class="seller-card" data-status="{{ seller.is_active|yesno:'active,inactive' }}">
         <div class="seller-header">
-            <div class="seller-avatar">
-                {{ seller.first_name.0|upper }}{{ seller.last_name.0|upper }}
-            </div>
+            <div class="seller-avatar">{{ seller.first_name.0|default:"?"|upper }}</div>
             <div class="seller-info">
                 <div class="seller-name">{{ seller.get_full_name }}</div>
                 <div class="seller-email">{{ seller.email }}</div>
@@ -423,31 +393,26 @@
         </div>
 
         <div class="seller-meta">
-            <div class="meta-item">
-                <i class="fas fa-id-card"></i>
+            {% if seller.cpf %}
+            <div class="meta-item"><i class="fas fa-id-card"></i>
                 <span>CPF: <span class="meta-value">{{ seller.cpf }}</span></span>
             </div>
-            <div class="meta-item">
-                <i class="fas fa-calendar-alt"></i>
+            {% endif %}
+            <div class="meta-item"><i class="fas fa-calendar-alt"></i>
                 <span>Cadastrado em: <span class="meta-value">{{ seller.date_joined|date:"d/m/Y" }}</span></span>
             </div>
             {% if seller.is_staff %}
-            <div class="meta-item">
-                <i class="fas fa-crown"></i>
-                <span class="meta-value">Administrador</span>
-            </div>
+            <div class="meta-item"><i class="fas fa-crown"></i><span class="meta-value">Administrador</span></div>
             {% endif %}
         </div>
 
         <div class="seller-actions">
-            <button class="action-btn view" onclick="event.stopPropagation(); window.location.href='{% url 'accounts:sellers_detail' seller.pk %}'">
-                <i class="fas fa-eye"></i>
-                Ver Detalhes
-            </button>
-            <button class="action-btn edit" onclick="event.stopPropagation();">
-                <i class="fas fa-edit"></i>
-                Editar
-            </button>
+            <a class="action-btn view" href="{% url 'accounts:sellers_detail' seller.pk %}">
+                <i class="fas fa-eye"></i> Ver
+            </a>
+            <a class="action-btn edit" href="#####">
+                <i class="fas fa-edit"></i> Editar
+            </a>
         </div>
     </div>
     {% endfor %}
@@ -458,8 +423,7 @@
     <h3>Nenhum vendedor cadastrado</h3>
     <p>Comece cadastrando seu primeiro vendedor no sistema</p>
     <a href="{% url 'accounts:sellers_create' %}" class="btn btn-primary">
-        <i class="fas fa-plus"></i>
-        Cadastrar Primeiro Vendedor
+        <i class="fas fa-plus"></i> Cadastrar Vendedor
     </a>
 </div>
 {% endif %}
@@ -467,47 +431,26 @@
 
 {% block extra_js %}
 <script>
-    // Busca em tempo real
     const searchInput = document.getElementById('searchInput');
     const sellerCards = document.querySelectorAll('.seller-card');
 
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value.toLowerCase();
-        
+    searchInput.addEventListener('input', e => {
+        const term = e.target.value.toLowerCase();
         sellerCards.forEach(card => {
-            const name = card.querySelector('.seller-name').textContent.toLowerCase();
-            const email = card.querySelector('.seller-email').textContent.toLowerCase();
-            const cpf = card.querySelector('.meta-value').textContent.toLowerCase();
-            
-            if (name.includes(searchTerm) || email.includes(searchTerm) || cpf.includes(searchTerm)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(term) ? 'block' : 'none';
         });
     });
 
-    // Filtros
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Remover active de todos
-            filterBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            const filter = this.getAttribute('data-filter');
-            
+    const filters = document.querySelectorAll('.filter-btn');
+    filters.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filters.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filter = btn.dataset.filter;
             sellerCards.forEach(card => {
-                const status = card.getAttribute('data-status');
-                
-                if (filter === 'all') {
-                    card.style.display = 'block';
-                } else if (filter === status) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+                const status = card.dataset.status;
+                card.style.display = filter === 'all' || filter === status ? 'block' : 'none';
             });
         });
     });

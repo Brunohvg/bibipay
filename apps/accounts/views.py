@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from apps.core.utils import redirect_user_by_type
 from apps.accounts.forms import SellersCreationForm
-
+from django.urls import reverse_lazy
 
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
@@ -67,9 +67,6 @@ class SellersDetailView(DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(User, pk=self.kwargs['pk'], user_type='sellers')   
-    
-# apps/accounts/views.py
-from django.urls import reverse_lazy
 
 class SellersDestroyView(DeleteView):
     model = User
