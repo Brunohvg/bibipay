@@ -1,11 +1,12 @@
+from turtle import up
 from django.contrib.auth.views import LoginView, LogoutView
-from django.views.generic import CreateView, ListView, DetailView, DeleteView
+from django.views.generic import CreateView, ListView, DetailView, DeleteView, UpdateView
 from django.shortcuts import get_object_or_404
 from apps.accounts.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from apps.core.utils import redirect_user_by_type
-from apps.accounts.forms import SellersCreationForm
+from apps.accounts.forms import SellersCreationForm, SellersUpdateForm
 from django.urls import reverse_lazy
 
 class CustomLoginView(LoginView):
@@ -44,7 +45,7 @@ class CustomLogoutView(LogoutView):
 class SellersCreateView(CreateView):
     template_name = 'accounts/sellers_create.html'
     form_class = SellersCreationForm
-    success_url = '/dashboard/'
+    success_url = '/dashboard/admin'
 
     def form_valid(self, form):
         messages.success(self.request, "Conta criada com sucesso! Faça login para continuar.", extra_tags='success')
@@ -68,6 +69,18 @@ class SellersDetailView(DetailView):
     def get_object(self, queryset=None):
         return get_object_or_404(User, pk=self.kwargs['pk'], user_type='sellers')   
 
+
+class SellersUpdateView(UpdateView):
+    model = User
+    form_class = SellersUpdateForm
+    template_name = 'accounts/sellers_update.html'
+    context_object_name = 'seller'
+    success_url = reverse_lazy('accounts:sellers_list')
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(User, pk=self.kwargs['pk'], user_type='sellers')
+
+
 class SellersDestroyView(DeleteView):
     model = User
     template_name = 'accounts/sellers_confirm_delete.html'
@@ -76,3 +89,24 @@ class SellersDestroyView(DeleteView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(User, pk=self.kwargs['pk'], user_type='sellers')
+
+
+from django.views import View
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from django.urls import reverse_lazy
+from apps.accounts.models import User
+
+class SellersDeactivateView(View):
+    def get(self, request, pk, *args, **kwargs):
+        seller = get_object_or_404(User, pk=pk, user_type='sellers')
+        if seller.is_active:
+            seller.is_active = False
+            seller.save()   
+            messages.success(request, f"Vendedor desativado com sucesso!", extra_tags='success')
+        else:
+            seller.is_active = True
+            seller.save()
+            messages.success(request, f"Vendedor ativado com sucesso!", extra_tags='success')
+        return redirect(reverse_lazy('accounts:sellers_list'))
+  

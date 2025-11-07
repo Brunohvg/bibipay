@@ -349,13 +349,13 @@
         </div>
     </div>
 
-    <div class="stat-box">
-        <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
-        <div class="stat-content">
-            <h4>{{ sellers|length|add:"-1" }}</h4>
-            <p>Inativos</p>
-        </div>
+<div class="stat-box">
+    <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
+    <div class="stat-content">
+        <h4>{{ inactive_sellers.count }}</h4>
+        <p>Inativos</p>
     </div>
+</div>
 </div>
 
 <!-- Toolbar -->
@@ -410,7 +410,7 @@
             <a class="action-btn view" href="{% url 'accounts:sellers_detail' seller.pk %}">
                 <i class="fas fa-eye"></i> Ver
             </a>
-            <a class="action-btn edit" href="#####">
+            <a class="action-btn edit" href="{% url 'accounts:sellers_update' seller.pk %}">
                 <i class="fas fa-edit"></i> Editar
             </a>
         </div>

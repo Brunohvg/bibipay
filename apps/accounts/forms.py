@@ -91,3 +91,45 @@ class SellersCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class SellersUpdateForm(forms.ModelForm):
+    commission_rate = forms.DecimalField(
+        label='Taxa de Comissão (%)',
+        max_digits=5,
+        decimal_places=2,
+        required=False,  # Pode ser nulo, caso seja admin
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control form-control-lg has-icon',
+            'placeholder': 'Ex: 1.00 para 1%',
+            'step': '0.01',
+            'min': '0',
+        }),
+    )
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'cpf', 'commission_rate')
+        labels = {
+            'first_name': 'Nome',
+            'last_name': 'Sobrenome',
+            'email': 'E-mail',
+            'cpf': 'CPF',
+        }
+        widgets = {
+            'first_name': forms.TextInput(attrs={
+                'class': 'form-control form-control-lg has-icon',
+                'placeholder': 'Ex: João'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'form-control form-control-lg has-icon',
+                'placeholder': 'Ex: Silva'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control form-control-lg has-icon',
+                'placeholder': 'vendedor@exemplo.com'   
+            }),
+            'cpf': forms.TextInput(attrs={
+                'class': 'form-control form-control-lg has-icon',
+                'placeholder': '000.000.000-00'
+            }),
+        }       
