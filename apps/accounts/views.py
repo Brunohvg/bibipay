@@ -93,7 +93,7 @@ class SellersCreateView(CreateView):
     """
     template_name = 'accounts/sellers_create.html'
     form_class = SellersCreationForm
-    success_url = reverse_lazy('dashboard:admin')  # Boa prática: usar reverse_lazy em vez de string fixa
+    success_url = reverse_lazy('dashboard:dashboard_admin')  # Boa prática: usar reverse_lazy em vez de string fixa
 
     def form_valid(self, form):
         """
