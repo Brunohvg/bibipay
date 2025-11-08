@@ -344,15 +344,15 @@
     <div class="stat-box">
         <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
         <div class="stat-content">
-            <h4>{{ sellers|dictsort:"is_active"|length }}</h4>
-            <p>Ativos</p>
+            <h4>{{ active_sellers|length }}</h4>
+            <p>Ativos </p>
         </div>
     </div>
 
 <div class="stat-box">
     <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
     <div class="stat-content">
-        <h4>{{ inactive_sellers.count }}</h4>
+        <h4>{{ inactive_sellers|length}}</h4>
         <p>Inativos</p>
     </div>
 </div>

@@ -64,7 +64,7 @@ class User(AbstractBaseUser, PermissionsMixin, BaseModel):
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+   # is_active = models.BooleanField(default=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE, default='sellers')
     commission_rate = models.DecimalField(
     verbose_name='Taxa de Comissão (%)',
