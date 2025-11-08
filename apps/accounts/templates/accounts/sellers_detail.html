@@ -380,10 +380,10 @@
         </div>
 
         <div class="profile-actions">
-            <button class="btn btn-primary" onclick="alert('Função de edição em desenvolvimento')">
+            <a class="btn btn-primary" href="{% url "accounts:sellers_update" seller.pk %}">
                 <i class="fas fa-edit"></i>
                 Editar
-            </button>
+            </a>
             <button class="btn btn-secondary" onclick="window.history.back()">
                 <i class="fas fa-arrow-left"></i>
                 Voltar
@@ -430,7 +430,7 @@
         
         <div class="detail-item">
             <span class="detail-label">Data de Cadastro</span>
-            <span class="detail-value">{{ seller.date_joined|date:"d/m/Y" }}</span>
+            <span class="detail-value">{{ seller.created_at|date:"d/m/Y" }}</span>
         </div>
         
         <div class="detail-item">
