@@ -14,3 +14,14 @@ class SaleForm(forms.ModelForm):
                 'placeholder': '0.00'
             }),
         }
+    def clean_total_amount(self):
+        total_amount = self.cleaned_data.get('total_amount')
+        if total_amount is not None and total_amount < 0:
+            raise forms.ValidationError("O valor total da venda não pode ser negativo.")
+        return total_amount
+    
+    def clean_date(self):
+        date = self.cleaned_data.get('date')
+        if date is None:
+            raise forms.ValidationError("A data da venda é obrigatória.")
+        return date

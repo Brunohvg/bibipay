@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.dashboard',
     'apps.sales',
+    'apps.commissions',
 ]
 
 # Middleware
