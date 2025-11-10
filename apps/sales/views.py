@@ -21,17 +21,13 @@ class SaleCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         try:
-            # O serviço agora cuida de TUDO (atribuir user, salvar, etc)
-            create_sale(self.request.user, form) 
-            
-            messages.success(
-                self.request, 
-                "Venda criada com sucesso!", 
-                extra_tags='success'
-            )
-            # NÃO chame super().form_valid(form)
-            # O serviço já salvou. Apenas redirecione.
-            return redirect(self.get_success_url()) 
+            self.object = create_sale(self.request.user, form)
+            messages.success(self.request, "Venda criada com sucesso!", extra_tags='success')
+            return redirect(self.get_success_url())
+        except ValidationError as e:
+            error_message = e.messages[0] if hasattr(e, 'messages') else str(e)
+            messages.error(self.request, error_message, extra_tags='danger')
+            return self.form_invalid(form)
             
         except ValidationError as e:
             # Se o serviço falhar (ex: duplicado), ele avisa
