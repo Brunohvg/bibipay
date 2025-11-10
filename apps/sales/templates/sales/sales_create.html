@@ -1,65 +1,332 @@
-{% extends "base/base.html" %}
+{% extends 'base/base_mobile.html' %}
 {% load static %}
 
-{% block title %}Lançar Venda{% endblock %}
+{% block title %}Nova Venda | BibipPay{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        padding: 50px 20px 25px;
+        color: #fff;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .back-btn {
+        width: 42px;
+        height: 42px;
+        border: none;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        transition: all 0.3s ease;
+    }
+
+    .back-btn:active {
+        transform: scale(0.95);
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    .page-title h1 {
+        font-size: 22px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .page-title p {
+        font-size: 13px;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    .messages-container {
+        margin-bottom: 16px;
+    }
+
+    .alert {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .alert i {
+        font-size: 16px;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        color: #065f46;
+    }
+
+    .alert-error, .alert-danger {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+    .alert-warning {
+        background: #fffbeb;
+        color: #92400e;
+    }
+
+    .alert-info {
+        background: #eff6ff;
+        color: #1e3a8a;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border: 1px solid var(--gray-100);
+    }
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 14px;
+        font-size: 15px;
+        border-radius: 10px;
+        border: 1px solid var(--gray-200);
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-error {
+        color: var(--danger);
+        font-size: 13px;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .currency-wrapper {
+        position: relative;
+    }
+
+    .currency-prefix {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: 600;
+        color: var(--gray-500);
+        pointer-events: none;
+    }
+
+    .with-prefix {
+        padding-left: 40px !important;
+    }
+
+    .info-box {
+        background: var(--gray-50);
+        border-left: 4px solid var(--primary);
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        color: var(--gray-700);
+        margin-bottom: 20px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .btn-cancel {
+        flex: 1;
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-submit {
+        flex: 2;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-submit:active {
+        transform: translateY(2px);
+        opacity: 0.9;
+    }
+
+    .help-section {
+        text-align: center;
+        margin-top: 24px;
+    }
+
+    .help-section a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Lançamento de Venda</h5>
-            <a href="#" class="btn btn-light btn-sm">
-                <i class="bi bi-arrow-left"></i> Voltar
-            </a>
+<div class="page-header">
+    <div class="header-content">
+        <button class="back-btn" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="page-title">
+            <h1>Nova Venda</h1>
+            <p>Registre o valor total do dia</p>
         </div>
-        <div class="card-body">
-            <form id="saleForm" method="post" novalidate>
-                {% csrf_token %}
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="id_seller" class="form-label">Vendedor</label>
-                        {{ form.seller }}
-                    </div>
-                    <div class="col-md-3">
-                        <label for="id_date" class="form-label">Data</label>
-                        {{ form.date }}
-                    </div>
-                    <div class="col-md-3">
-                        <label for="id_total_amount" class="form-label">Valor Total (R$)</label>
-                        {{ form.total_amount }}
-                    </div>
+    </div>
+</div>
+
+<div class="content">
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }}">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags in 'error danger' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        Você só pode registrar uma venda por dia. Caso já exista, ela será atualizada automaticamente.
+    </div>
+
+    <div class="form-card">
+        <form method="post" id="saleForm" autocomplete="off">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <ul style="margin:0;padding-left:18px;">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-success px-4">
-                        <i class="bi bi-save"></i> Salvar Venda
-                    </button>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.date.id_for_label }}">Data da Venda</label>
+                <input type="date"
+                       name="{{ form.date.name }}"
+                       id="{{ form.date.id_for_label }}"
+                       value="{{ form.date.value|default:'' }}"
+                       max="{% now 'Y-m-d' %}"
+                       class="form-control {% if form.date.errors %}field-error{% endif %}"
+                       required>
+                {% for error in form.date.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="{{ form.total_amount.id_for_label }}">Valor Total</label>
+                <div class="currency-wrapper">
+                    <span class="currency-prefix">R$</span>
+                    <input type="text"
+                           name="{{ form.total_amount.name }}"
+                           id="{{ form.total_amount.id_for_label }}"
+                           value="{{ form.total_amount.value|default:'' }}"
+                           class="form-control with-prefix {% if form.total_amount.errors %}field-error{% endif %}"
+                           placeholder="0,00"
+                           inputmode="decimal"
+                           required>
                 </div>
-            </form>
-        </div>
+                {% for error in form.total_amount.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="btn-cancel" onclick="window.history.back()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check"></i> Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="help-section">
+        <p style="color: var(--gray-500); font-size: 13px;">Dúvidas?</p>
+        <a href="#"><i class="fas fa-question-circle"></i> Ver tutorial</a>
     </div>
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('saleForm');
-    
-    form.addEventListener('submit', (e) => {
-        const amountField = document.getElementById('id_total_amount');
-        const dateField = document.getElementById('id_date');
-        
-        if (!amountField.value || parseFloat(amountField.value) <= 0) {
+document.addEventListener("DOMContentLoaded", function() {
+    const amountInput = document.getElementById('{{ form.total_amount.id_for_label }}');
+    const dateInput = document.getElementById('{{ form.date.id_for_label }}');
+    const today = new Date().toISOString().split('T')[0];
+    if (dateInput && (!dateInput.value || dateInput.value > today)) {
+        dateInput.value = today;
+    }
+
+    amountInput.addEventListener('input', e => {
+        let value = e.target.value.replace(/\D/g, '');
+        value = (parseFloat(value) / 100).toFixed(2);
+        e.target.value = isNaN(value) ? '' : value.replace('.', ',');
+    });
+
+    document.getElementById('saleForm').addEventListener('submit', e => {
+        const amount = amountInput.value.replace(',', '.');
+        if (!amount || parseFloat(amount) <= 0) {
             e.preventDefault();
-            alert('Informe um valor de venda válido.');
-            amountField.focus();
-            return;
-        }
-        if (!dateField.value) {
-            e.preventDefault();
-            alert('Informe a data da venda.');
-            dateField.focus();
-            return;
+            alert('Por favor, insira um valor válido maior que zero.');
         }
     });
 });

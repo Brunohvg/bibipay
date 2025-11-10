@@ -1,7 +1,9 @@
 {% extends "base/base.html" %}
+{% load humanize %} 
 
 {% block title %}Dashboard Admin{% endblock %}
 {% block page_title %}Painel Administrativo{% endblock %}
+
 
 {% block extra_css %}
 <style>
@@ -389,57 +391,40 @@
 </style>
 {% endblock %}
 
+
 {% block content %}
 
-<!-- STATS GRID -->
 <div class="stats-grid">
-  <!-- Total de Vendas -->
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon primary"><i class="fas fa-dollar-sign"></i></div>
       <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 12.5%</div>
     </div>
-    <div class="stat-card-value">R$ {{ total_sales|default:"0,00" }}</div>
-    <div class="stat-card-label">Vendas do Mês</div>
-    <div class="stat-card-detail">
-      <i class="fas fa-info-circle"></i> 
-      {% if previous_sales %}
-        vs R$ {{ previous_sales|default:"0,00" }} mês anterior
-      {% else %}
-        Sem comparação
-      {% endif %}
-    </div>
+    <div class="stat-card-value">R$ {{ total_vendas|floatformat:2|intcomma|default:"0,00" }}</div>
+    <div class="stat-card-label">Vendas Totais</div>
+    <div class="stat-card-detail"><i class="fas fa-info-circle"></i> Valor total registrado no sistema.</div>
   </div>
 
-  <!-- Total de Comissões -->
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon success"><i class="fas fa-percentage"></i></div>
       <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 8.2%</div>
     </div>
-    <div class="stat-card-value">R$ {{ total_commission|default:"0,00" }}</div>
+    <div class="stat-card-value">R$ {{ total_comissao|floatformat:2|intcomma|default:"0,00" }}</div>
     <div class="stat-card-label">Comissões a Pagar</div>
-    <div class="stat-card-detail">
-      <i class="fas fa-clock"></i> 
-      Pendentes de pagamento
-    </div>
+    <div class="stat-card-detail"><i class="fas fa-clock"></i> Total pendente de pagamento</div>
   </div>
 
-  <!-- Vendedores Ativos -->
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon info"><i class="fas fa-users"></i></div>
       <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 5.1%</div>
     </div>
-    <div class="stat-card-value">{{ active_sellers|default:"0" }}</div>
+    <div class="stat-card-value">{{ sellers|length|default:"0" }}</div>
     <div class="stat-card-label">Vendedores Ativos</div>
-    <div class="stat-card-detail">
-      <i class="fas fa-check-circle"></i> 
-      de {{ total_sellers|default:"0" }} vendedores
-    </div>
+    <div class="stat-card-detail"><i class="fas fa-check-circle"></i> de {{ total_sellers|default:"0" }} vendedores cadastrados</div>
   </div>
 
-  <!-- Taxa de Conversão -->
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon warning"><i class="fas fa-chart-pie"></i></div>
@@ -447,27 +432,19 @@
     </div>
     <div class="stat-card-value">{{ conversion_rate|default:"0" }}%</div>
     <div class="stat-card-label">Taxa de Conversão</div>
-    <div class="stat-card-detail">
-      <i class="fas fa-info-circle"></i> 
-      Performance geral
-    </div>
+    <div class="stat-card-detail"><i class="fas fa-info-circle"></i> Performance geral</div>
   </div>
 </div>
 
-<!-- TOP SELLERS -->
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">
       <i class="fas fa-trophy" style="color: var(--warning);"></i>
-      Top 5 Vendedores do Mês
+      Top 5 Vendedores Ativos
     </h3>
     <div class="header-actions">
-      <a href="{% url 'accounts:sellers_list' %}" class="btn-action btn-secondary">
-        <i class="fas fa-list"></i> Ver Todos
-      </a>
-      <a href="#" class="btn-action btn-primary">
-        <i class="fas fa-chart-line"></i> Relatório
-      </a>
+      <a href="{% url 'accounts:sellers_list' %}" class="btn-action btn-secondary"><i class="fas fa-list"></i> Ver Todos</a>
+      <a href="#" class="btn-action btn-primary"><i class="fas fa-chart-line"></i> Relatório</a>
     </div>
   </div>
   <div class="card-body">
@@ -489,43 +466,23 @@
           <tr>
             <td>
               <div class="seller-row">
-                <div class="seller-avatar">
-                  {{ seller.first_name.0|upper }}{{ seller.last_name.0|upper }}
-                </div>
+                <div class="seller-avatar">{{ seller.first_name.0|upper }}{{ seller.last_name.0|upper }}</div>
                 <div class="seller-info">
                   <div class="seller-name">{{ seller.get_full_name }}</div>
                   <div class="seller-email">{{ seller.email }}</div>
                 </div>
               </div>
             </td>
+            <td><strong>0</strong> vendas</td>
+            <td><strong style="color: var(--primary); font-size: 14px;">R$ 0,00</strong></td>
+            <td><strong style="color: var(--success); font-size: 14px;">R$ 0,00</strong></td>
             <td>
-              <strong>0</strong> vendas
-            </td>
-            <td>
-              <strong style="color: var(--primary); font-size: 14px;">R$ 0,00</strong>
-            </td>
-            <td>
-              <strong style="color: var(--success); font-size: 14px;">R$ 0,00</strong>
-            </td>
-            <td>
-              {% if seller.is_active %}
-                <span class="badge badge-success">
-                  <i class="fas fa-check-circle"></i> Ativo
-                </span>
-              {% else %}
-                <span class="badge badge-danger">
-                  <i class="fas fa-times-circle"></i> Inativo
-                </span>
-              {% endif %}
+              <span class="badge badge-success"><i class="fas fa-check-circle"></i> Ativo</span>
             </td>
             <td>
               <div class="quick-actions">
-                <a href="{% url 'accounts:sellers_detail' seller.id %}" class="action-link view" title="Visualizar">
-                  <i class="fas fa-eye"></i>
-                </a>
-                <a href="{% url 'accounts:sellers_update' seller.id %}" class="action-link edit" title="Editar">
-                  <i class="fas fa-edit"></i>
-                </a>
+                <a href="{% url 'accounts:sellers_detail' seller.id %}" class="action-link view" title="Visualizar"><i class="fas fa-eye"></i></a>
+                <a href="{% url 'accounts:sellers_update' seller.id %}" class="action-link edit" title="Editar"><i class="fas fa-edit"></i></a>
               </div>
             </td>
           </tr>
@@ -536,38 +493,22 @@
     {% else %}
     <div class="empty-state">
       <i class="fas fa-inbox"></i>
-      <p>Nenhum vendedor cadastrado ainda</p>
+      <p>Nenhum vendedor ativo encontrado.</p>
     </div>
     {% endif %}
   </div>
 </div>
 
-<!-- PERFORMANCE METRICS -->
 <div class="card">
   <div class="card-header">
-    <h3 class="card-title">
-      <i class="fas fa-chart-bar" style="color: var(--info);"></i>
-      Métricas de Performance
-    </h3>
+    <h3 class="card-title"><i class="fas fa-chart-bar" style="color: var(--info);"></i> Métricas de Performance</h3>
   </div>
   <div class="card-body">
     <div class="metrics-row">
-      <div class="metric">
-        <div class="metric-label">Ticket Médio</div>
-        <div class="metric-value">R$ 0,00</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Vendas Hoje</div>
-        <div class="metric-value">0</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Comissões Hoje</div>
-        <div class="metric-value">R$ 0,00</div>
-      </div>
-      <div class="metric">
-        <div class="metric-label">Vendedor + Ativo</div>
-        <div class="metric-value">—</div>
-      </div>
+      <div class="metric"><div class="metric-label">Ticket Médio</div><div class="metric-value">R$ 0,00</div></div>
+      <div class="metric"><div class="metric-label">Vendas Hoje</div><div class="metric-value">0</div></div>
+      <div class="metric"><div class="metric-label">Comissões Hoje</div><div class="metric-value">R$ 0,00</div></div>
+      <div class="metric"><div class="metric-label">Vendedor + Ativo</div><div class="metric-value">—</div></div>
     </div>
   </div>
 </div>

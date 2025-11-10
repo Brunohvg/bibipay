@@ -1,132 +1,115 @@
 # apps/accounts/views.py
 
-# ==========================
-# IMPORTAÇÕES NECESSÁRIAS
-# ==========================
-
-# Views de autenticação padrão do Django
 from django.contrib.auth.views import LoginView, LogoutView
-
-# Views genéricas de CRUD (Create, Read, Update, Delete)
 from django.views.generic import CreateView, ListView, DetailView, DeleteView, UpdateView, View
-
-# Funções úteis para manipular dados e redirecionar
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.contrib import messages
 from django.urls import reverse_lazy
 
-# Importa o modelo de usuário personalizado
-from apps.accounts.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-# Importa formulários personalizados
+# Importa o modelo e formulários (a view ainda precisa saber sobre eles)
+from apps.accounts.models import User
 from apps.accounts.forms import SellersCreationForm, SellersUpdateForm
 
-# Função utilitária para redirecionar o usuário conforme o tipo
-from apps.core.utils import redirect_user_by_type
 
+# Utils (perfeito, continua como está)
+from apps.core.utils import redirect_user_by_type
+# =========================================================
+# MUDANÇA: Importamos nosso novo arquivo de serviços!
+# =========================================================
+from . import services
 
 
 # ==========================
 # VIEW DE LOGIN PERSONALIZADA
 # ==========================
-
 class CustomLoginView(LoginView):
     """
-    View de login customizada.
-    Usa o template 'accounts/login.html' e redireciona o usuário
-    de acordo com o tipo (admin, staff, seller etc).
+    (Sem mudança)
+    Esta view já está ótima. A lógica de "redirecionar" (utils) e
+    "lembrar-me" (sessão) é responsabilidade da view (HTTP),
+    e não do negócio.
     """
     template_name = 'accounts/login.html'
-    redirect_authenticated_user = True  # Evita que usuários logados vejam a tela de login novamente
+    redirect_authenticated_user = True 
 
     def get_success_url(self):
-        """
-        Define para onde o usuário será redirecionado após o login.
-        Usa uma função utilitária que verifica o tipo de usuário.
-        """
         return redirect_user_by_type(self.request.user)
 
     def form_valid(self, form):
-        """
-        Executado quando o formulário de login é válido.
-        Aqui, garantimos que a sessão expire ao fechar o navegador
-        se o usuário não marcar 'lembrar-me'.
-        """
         response = super().form_valid(form)
-
-        # Se o usuário não marcou "lembrar-me", a sessão expira ao fechar o navegador.
         if not self.request.POST.get('remember_me'):
             self.request.session.set_expiry(0)
             self.request.session.modified = True
-
         return response
 
     def form_invalid(self, form):
-        """
-        Executado quando o formulário é inválido (login incorreto).
-        Exibe uma mensagem de erro amigável ao usuário.
-        """
         messages.error(self.request, "E-mail ou CPF e senha inválidos.", extra_tags='danger')
         return super().form_invalid(form)
-
 
 
 # ==========================
 # VIEW DE LOGOUT
 # ==========================
-
 class CustomLogoutView(LogoutView):
-    """
-    Faz o logout do usuário e redireciona para a página de login.
-    """
+    """(Sem mudança)"""
     next_page = '/accounts/login/'
-
 
 
 # ==========================
 # CRIAÇÃO DE VENDEDORES
 # ==========================
-
-class SellersCreateView(CreateView):
+class SellersCreateView(CreateView, LoginRequiredMixin):
     """
-    View para cadastrar novos vendedores no sistema.
+    (Sem mudança)
+    Como explicado no 'services.py', esta view já separa bem a lógica.
+    A view cuida do template/form/success_url, e o 'SellersCreationForm'
+    (em forms.py) cuida da criação e validação do usuário.
+    Está perfeito.
     """
     template_name = 'accounts/sellers_create.html'
     form_class = SellersCreationForm
-    success_url = reverse_lazy('dashboard:dashboard_admin')  # Boa prática: usar reverse_lazy em vez de string fixa
+    success_url = reverse_lazy('dashboard:dashboard_admin') 
 
     def form_valid(self, form):
-        """
-        Exibe mensagem de sucesso quando o vendedor é criado.
-        """
         messages.success(self.request, "Conta criada com sucesso! Faça login para continuar.", extra_tags='success')
         return super().form_valid(form)
-
 
 
 # ==========================
 # LISTAGEM DE VENDEDORES
 # ==========================
-
-class SellersListView(ListView):
+class SellersListView(ListView, LoginRequiredMixin):
     """
     Exibe uma lista de todos os vendedores cadastrados.
+    A view agora pede a lista ao SERVIÇO.
     """
-    model = User
+    model = User # Opcional, mas bom manter
     template_name = 'accounts/sellers_list.html'
     context_object_name = 'sellers'
 
     def get_queryset(self):
         """
-        Retorna apenas usuários do tipo 'sellers', ordenados por nome.
+        MUDANÇA: A view não sabe MAIS como buscar os vendedores.
+        Ela simplesmente pede ao serviço.
         """
-        sellers = User.objects.filter(user_type='sellers').order_by('first_name', 'last_name')
-        return sellers
+        return services.get_all_sellers()
     
     def get_context_data(self, **kwargs):
+        """
+        MUDANÇA: A lógica de separar ativos/inativos é da view
+        (pois é para 'apresentação'), mas ela usa a lista
+        principal vinda do serviço.
+        """
         context = super().get_context_data(**kwargs)
-        context['active_sellers'] = self.get_queryset().filter(is_active=True)
-        context['inactive_sellers'] = self.get_queryset().filter(is_active=False)
+        
+        # Pega a lista principal (que já veio do get_queryset)
+        all_sellers = context['sellers'] 
+        
+        # Filtra a lista para a exibição no template
+        context['active_sellers'] = all_sellers.filter(is_active=True)
+        context['inactive_sellers'] = all_sellers.filter(is_active=False)
         return context
 
 
@@ -134,29 +117,30 @@ class SellersListView(ListView):
 # DETALHES DE UM VENDEDOR
 # ==========================
 
-class SellersDetailView(DetailView):
+class SellersDetailView(DetailView, LoginRequiredMixin):
     """
-    Mostra os detalhes de um vendedor específico.
+    Mostra os detalhes de um vendedor.
+    A view pede o vendedor ao SERVIÇO.
     """
-    model = User
+    model = User # Opcional
     template_name = 'accounts/sellers_detail.html'
     context_object_name = 'seller'
 
     def get_object(self, queryset=None):
         """
-        Busca o vendedor pelo ID (pk) e garante que seja do tipo 'sellers'.
+        MUDANÇA: A view não sabe MAIS como buscar o objeto.
+        Ela pede ao serviço para buscar pelo ID.
         """
-        return get_object_or_404(User, pk=self.kwargs['pk'], user_type='sellers')
-
+        return services.get_seller_by_id(user_id=self.kwargs['pk'])
 
 
 # ==========================
 # ATUALIZAÇÃO DE VENDEDORES
 # ==========================
-
-class SellersUpdateView(UpdateView):
+class SellersUpdateView(UpdateView, LoginRequiredMixin):
     """
-    Permite editar os dados de um vendedor existente.
+    Permite editar os dados de um vendedor.
+    A view pede o vendedor ao SERVIÇO.
     """
     model = User
     form_class = SellersUpdateForm
@@ -166,19 +150,19 @@ class SellersUpdateView(UpdateView):
 
     def get_object(self, queryset=None):
         """
-        Busca o vendedor e garante que seja do tipo 'sellers'.
+        MUDANÇA: Reutilizamos o mesmo serviço!
+        A lógica de 'get_object_or_404' está em um só lugar.
         """
-        return get_object_or_404(User, pk=self.kwargs['pk'], user_type='sellers')
-
+        return services.get_seller_by_id(user_id=self.kwargs['pk'])
 
 
 # ==========================
 # EXCLUSÃO DE VENDEDORES
 # ==========================
-
-class SellersDestroyView(DeleteView):
+class SellersDestroyView(DeleteView, LoginRequiredMixin):
     """
-    Permite excluir (deletar) um vendedor do sistema.
+    Permite excluir (deletar) um vendedor.
+    A view pede o vendedor ao SERVIÇO.
     """
     model = User
     template_name = 'accounts/sellers_confirm_delete.html'
@@ -187,32 +171,35 @@ class SellersDestroyView(DeleteView):
 
     def get_object(self, queryset=None):
         """
-        Busca o vendedor e garante que seja do tipo 'sellers'.
+        MUDANÇA: Reutilizamos o serviço mais uma vez.
         """
-        return get_object_or_404(User, pk=self.kwargs['pk'], user_type='sellers')
-
+        return services.get_seller_by_id(user_id=self.kwargs['pk'])
 
 
 # ==========================
 # ATIVAR / DESATIVAR VENDEDOR
 # ==========================
-
-class SellersDeactivateView(View):
+class SellersDeactivateView(View, LoginRequiredMixin):
     """
     Ativa ou desativa um vendedor (sem excluir).
-    Serve para bloquear o acesso de um vendedor sem perder os dados dele.
+    A view agora só CHAMA o serviço e exibe a mensagem.
     """
     def get(self, request, pk, *args, **kwargs):
-        # Busca o vendedor
-        seller = get_object_or_404(User, pk=pk, user_type='sellers')
+        
+        # ========================================================
+        # MUDANÇA: A view não faz ideia de como o status é trocado.
+        # Ela apenas pede para o serviço fazer a ação.
+        # ========================================================
+        try:
+            seller = services.toggle_seller_status(user_id=pk)
+            
+            # A view continua responsável pelo Feedback ao usuário (HTTP)
+            status = "ativado" if seller.is_active else "desativado"
+            messages.success(request, f"Vendedor {status} com sucesso!", extra_tags='success')
+        
+        except Exception as e:
+            # Se o serviço falhar (ex: não achar o usuário), a view trata o erro.
+            messages.error(request, f"Erro ao atualizar vendedor: {e}", extra_tags='danger')
 
-        # Alterna o status ativo/inativo
-        seller.is_active = not seller.is_active
-        seller.save()
-
-        # Mensagem de sucesso dinâmica
-        status = "ativado" if seller.is_active else "desativado"
-        messages.success(request, f"Vendedor {status} com sucesso!", extra_tags='success')
-
-        # Redireciona de volta para a lista de vendedores
+        # A view continua responsável pelo redirecionamento (HTTP)
         return redirect(reverse_lazy('accounts:sellers_list'))

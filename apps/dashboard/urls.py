@@ -1,11 +1,14 @@
 # apps/dashboard/urls.py
 from django.urls import path
 from django.shortcuts import redirect
-from .views import AdminDashboardView, SellerDashboardView, BoxDashboardView
+from .views import AdminDashboardView, SellerDashboardView
+
 
 app_name = 'dashboard'
 
 def dashboard_redirect_view(request):
+    if not request.user.is_authenticated:
+        return redirect('accounts:login')
     user = request.user
     if user.user_type == 'admin':
         return redirect('dashboard:dashboard_admin')
@@ -19,5 +22,5 @@ urlpatterns = [
     path('', dashboard_redirect_view, name='dashboard_redirect'),
     path('admin/', AdminDashboardView.as_view(), name='dashboard_admin'),
     path('sellers/', SellerDashboardView.as_view(), name='dashboard_sellers'),
-    path('boxs/', BoxDashboardView.as_view(), name='dashboard_boxs'),
+    #path('boxs/', BoxDashboardView.as_view(), name='dashboard_boxs'),
 ]

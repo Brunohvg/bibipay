@@ -26,8 +26,14 @@ class Sale(BaseModel):
         ]
 
     def clean(self):
+        # Se o seller ainda não foi definido, pula a verificação
+        if not self.seller_id or not self.date:
+            return
+
         if Sale.objects.filter(seller=self.seller, date=self.date).exclude(pk=self.pk).exists():
             raise ValidationError("Já existe uma venda registrada para este vendedor nesta data.")
 
     def __str__(self):
-        return f"{self.seller.first_name} - {self.date.strftime('%d/%m/%Y')} - R$ {self.total_amount:.2f}"
+        seller_name = getattr(self.seller, 'first_name', 'Sem vendedor')
+        date_str = self.date.strftime('%d/%m/%Y') if self.date else 'Sem data'
+        return f"{seller_name} - {date_str} - R$ {self.total_amount:.2f}"

@@ -14,6 +14,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',') if config('ALLOWE
 INSTALLED_APPS = [
     # Third-party apps
     'widget_tweaks',
+    'django.contrib.humanize',
 
     # Django apps
     'django.contrib.admin',
