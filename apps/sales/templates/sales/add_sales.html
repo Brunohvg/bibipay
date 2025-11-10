@@ -1,0 +1,43 @@
+{% extends 'mobile/base.html' %}
+
+{% block title %}Lançar Venda{% endblock %}
+
+{% block nav_active_lancar %}active{% endblock %}
+
+{% block header_content %}
+    <span class="header-page-title">Lançar Venda</span>
+    <div class="header-action"></div> 
+{% endblock %}
+
+
+{% block content %}
+    <h2 class="section-title">Nova Venda</h2>
+    <p style="color: var(--gray-600); margin-top: -10px; margin-bottom: 24px;">
+        Insira o valor total e a data da venda.
+    </p>
+
+    <form method="POST" novalidate>
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.date.id_for_label }}" class="form-label">Data da Venda</label>
+            {{ form.date }}
+            {% if form.date.errors %}
+                <span class="form-error">{{ form.date.errors.0 }}</span>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.total_amount.id_for_label }}" class="form-label">Valor Total da Venda (R$)</label>
+            {{ form.total_amount }}
+            {% if form.total_amount.errors %}
+                <span class="form-error">{{ form.total_amount.errors.0 }}</span>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn-mobile btn-primary-mobile" style="margin-top: 20px;">
+            <i class="fas fa-save"></i>
+            Salvar Venda
+        </button>
+    </form>
+{% endblock %}

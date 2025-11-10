@@ -1,4 +1,3 @@
-# apps/sales/services.py
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -15,13 +14,17 @@ def create_sale(user, form):
     """
     if not hasattr(user, 'user_type') or user.user_type != 'sellers':
         raise ValidationError("Apenas vendedores podem criar vendas.")
+
     try:
+        # Cria a instância sem salvar ainda
         sale = form.save(commit=False)
         sale.seller = user
         sale.save()
+        # form.save_m2m() # se houver campos ManyToMany
         return sale
+
     except Exception as e:
-        raise ValidationError(f"Erro ao salvar: {e}")
+        raise ValidationError(f"Erro ao salvar a venda: {e}")
 
 
 def get_sales_by_seller(seller_id: int, period: str = None):
@@ -29,7 +32,6 @@ def get_sales_by_seller(seller_id: int, period: str = None):
     Busca as vendas de um vendedor, com filtros de período opcionais.
     """
     queryset = Sale.objects.filter(seller_id=seller_id)
-
     today = timezone.now().date()
 
     if period == 'today':
@@ -57,12 +59,14 @@ def get_sales_dashboard_stats(seller_id: int):
     today = timezone.now().date()
     month_start = today.replace(day=1)
 
+    # Estatísticas do dia
     today_sales = user_sales.filter(date=today)
     today_stats = today_sales.aggregate(
         count=models.Count('id'),
         total=models.Sum('total_amount')
     )
 
+    # Estatísticas do mês
     month_sales = user_sales.filter(date__gte=month_start)
     month_stats = month_sales.aggregate(
         count=models.Count('id'),

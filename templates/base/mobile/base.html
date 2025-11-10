@@ -1,0 +1,439 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="description" content="Painel do Vendedor - BibipPay">
+    <meta name="author" content="BibipPay">
+    
+    <title>{% block title %}Painel{% endblock %} | BibipPay</title>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===== 1. VARIÁVEIS DE COR ===== */
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        /* ===== 2. RESET BÁSICO E BODY (Refinado) ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--gray-50); /* Fundo mais suave */
+            color: var(--gray-800);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Previne scroll do body */
+        }
+        a { text-decoration: none; color: inherit; }
+        h2.section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 16px;
+        }
+
+        /* ===== 3. LAYOUT PRINCIPAL DO APP (Refinado) ===== */
+        .mobile-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* == Cabeçalho (Refinado) == */
+        .mobile-header {
+            padding: 16px 20px;
+            background: white;
+            /* Sombra mais suave substitui a borda */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 100;
+        }
+        .header-profile { display: flex; align-items: center; gap: 12px; }
+        .header-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .header-info span { display: block; line-height: 1.3; }
+        .header-info .welcome { font-size: 13px; color: var(--gray-500); }
+        .header-info .name { font-weight: 600; color: var(--gray-900); }
+        .header-page-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        .header-action {
+            font-size: 20px;
+            color: var(--gray-600);
+            padding: 5px;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* == Conteúdo Rolável == */
+        .mobile-content {
+            flex: 1; /* Ocupa todo o espaço */
+            overflow-y: auto; /* Apenas o conteúdo rola */
+            padding: 20px;
+            padding-bottom: 100px; /* Espaço para a navbar */
+        }
+        
+        /* ===== 4. COMPONENTES (Cards - Refinados) ===== */
+        .stat-card-main {
+            padding: 24px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 20px; /* Mais arredondado */
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .stat-card-main .label { font-size: 14px; opacity: 0.8; margin-bottom: 8px; }
+        .stat-card-main .value { font-size: 32px; font-weight: 800; }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .stat-card-small {
+            background: white;
+            padding: 16px;
+            border-radius: 16px; /* Arredondado */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-100); /* Borda mais suave */
+        }
+        .stat-card-small .icon { font-size: 20px; margin-bottom: 10px; color: var(--primary); }
+        .stat-card-small .label { font-size: 13px; color: var(--gray-600); margin-bottom: 6px; }
+        .stat-card-small .value { font-size: 22px; font-weight: 700; color: var(--gray-900); }
+        .stat-card-small.partial .icon { color: var(--success); }
+
+        .card-list {
+            background: white;
+            border-radius: 20px; /* Mais arredondado */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-100);
+            overflow: hidden;
+        }
+        .card-list-body { padding: 12px 0 20px 0; }
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--gray-100);
+        }
+        .list-item:last-child { border-bottom: none; }
+        
+        .list-item-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gray-100);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--primary);
+            margin-right: 12px;
+        }
+        .list-item-icon.credit { color: var(--success); background: #f0fdf4; }
+        .list-item-info { flex: 1; }
+        .list-item-info .title { font-weight: 600; color: var(--gray-800); }
+        .list-item-info .subtitle { font-size: 13px; color: var(--gray-500); }
+        
+        .list-item-amount { text-align: right; }
+        .list-item-amount .value { font-size: 16px; font-weight: 600; color: var(--success); }
+        .list-item-amount .subvalue { font-size: 13px; color: var(--gray-500); }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--gray-500); }
+        .empty-state i { font-size: 40px; margin-bottom: 16px; opacity: 0.7; }
+        .empty-state p { font-size: 16px; font-weight: 500; }
+
+        /* ===== 5. FORMULÁRIOS ===== */
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; font-size: 14px; }
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: 'Inter', sans-serif;
+            appearance: none; -webkit-appearance: none;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .form-error { color: #ef4444; font-size: 12px; margin-top: 6px; display: block; font-weight: 500; }
+
+        /* ===== 6. BOTÕES ===== */
+        .btn-mobile { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px 20px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
+        .btn-primary-mobile { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+        .btn-primary-mobile:hover { transform: translateY(-2px); }
+        .btn-danger-mobile { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+        /* ===== 7. BARRA DE NAVEGAÇÃO (Refinada) ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 75px;
+            background: white;
+            /* Sombra superior mais suave */
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0 10px;
+            padding-bottom: env(safe-area-inset-bottom); /* Suporte para iPhone */
+            z-index: 100;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray-500); font-size: 11px; font-weight: 500; padding: 10px; flex: 1; transition: all 0.2s ease; }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
+        
+        .nav-item-fab { font-size: 0; padding: 0; flex: 1.2; }
+        .nav-item-fab a {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-top: -25px;
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+            border: 4px solid white;
+            transition: all 0.3s ease;
+        }
+        .nav-item-fab.active a { box-shadow: 0 0 0 4px white, 0 0 0 7px var(--primary); }
+
+        /* ===== 8. ALERTS (Toast/Snackbar) ===== */
+        .toast-container {
+            position: fixed;
+            /* Posição estratégica: acima da nav, com 15px de margem */
+            bottom: 90px; 
+            left: 15px;
+            right: 15px;
+            z-index: 9999; /* Mais alto que tudo */
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Espaço entre múltiplas mensagens */
+            pointer-events: none; /* Permite clicar "através" do container */
+        }
+        .alert-mobile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            border-left: 4px solid;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Efeito de flutuação */
+            pointer-events: auto; /* Alerta individual pode ser clicado */
+            
+            /* Animação de entrada (de baixo para cima) */
+            animation: slideInUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .alert-mobile.exiting {
+            animation: slideOutDown 0.4s cubic-bezier(0.6, -0.28, 0.73, 0.04) forwards;
+        }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(100px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideOutDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(100px); } }
+        .alert-mobile-success { background: #f0fdf4; color: #166534; border-color: var(--success); }
+        .alert-mobile-error,
+        .alert-mobile-danger { background: #fef2f2; color: #991b1b; border-color: var(--danger); }
+        .alert-mobile-warning { background: #fffbeb; color: #92400e; border-color: var(--warning); }
+        .alert-mobile-info { background: #eff6ff; color: #1e40af; border-color: var(--info); }
+        
+        /* ===== 9. COMPONENTE DE FILTRO (Navegador de Mês) ===== */
+        .month-navigator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--gray-100);
+        }
+
+        .month-nav-link {
+            font-size: 18px;
+            color: var(--primary);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+        .month-nav-link:hover {
+            background-color: var(--gray-100);
+        }
+        
+        /* Estilo para links de seta desabilitados (ex: não há próximo mês) */
+        .month-nav-link.disabled {
+            color: var(--gray-300);
+            pointer-events: none;
+            background-color: transparent;
+        }
+
+        .month-nav-current {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--gray-900);
+            text-align: center;
+        }
+        .month-nav-current .year {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-600);
+            display: block;
+            line-height: 1;
+        }
+
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="mobile-container">
+        
+        <header class="mobile-header">
+            {% block header_content %}
+            <div class="header-profile">
+                <div class="header-avatar">{{ request.user.first_name.0|upper|default:"V" }}</div>
+                <div class="header-info">
+                    <span class="welcome">Bem-vindo,</span>
+                    <span class="name">{{ request.user.first_name|default:"Vendedor" }}</span>
+                </div>
+            </div>
+            <a href="#" class="header-action">
+                <i class="fas fa-bell"></i>
+            </a>
+            {% endblock %}
+        </header>
+
+        <main class="mobile-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <nav class="bottom-nav">
+            
+            <a href="{% url "dashboard:dashboard_sellers" %}" class="nav-item {% block nav_active_inicio %}{% endblock %}">
+                <i class="fas fa-chart-pie"></i>
+                <span>Início</span>
+            </a>
+            
+            <a href="{% url "sales:sales_list" %}" class="nav-item {% block nav_active_vendas %}{% endblock %}">
+                <i class="fas fa-list-ul"></i>
+                <span>Vendas</span>
+            </a>
+
+            <div class="nav-item-fab {% block nav_active_lancar %}{% endblock %}">
+                <a href="{% url "sales:sales_create" %}" title="Lançar Venda">
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
+
+            <a href="#" class="nav-item {% block nav_active_links %}{% endblock %}">
+                <i class="fas fa-link"></i>
+                <span>Links</span>
+            </a>
+
+            <a href="#" class="nav-item {% block nav_active_perfil %}{% endblock %}">
+                <i class="fas fa-user-circle"></i>
+                <span>Perfil</span>
+            </a>
+        </nav>
+
+    </div> <div class="toast-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-mobile alert-mobile-{{ message.tags|default:'info' }}">
+                {% if message.tags == 'error' or message.tags == 'danger' %}
+                    <i class="fas fa-exclamation-circle"></i>
+                {% elif message.tags == 'success' %}
+                    <i class="fas fa-check-circle"></i>
+                {% elif message.tags == 'warning' %}
+                    <i class="fas fa-exclamation-triangle"></i>
+                {% else %}
+                    <i class="fas fa-info-circle"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endif %}
+    </div>
+
+
+    {% block extra_js %}
+    <script>
+        // Auto-dismiss Toasts (Alerts)
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert-mobile');
+            alerts.forEach((alert, index) => {
+                // Tempo de espera: 5 segundos, mais um pequeno delay para várias mensagens
+                const delay = 5000 + (index * 500);
+                
+                setTimeout(() => {
+                    // Adiciona a classe que inicia a animação de saída
+                    alert.classList.add('exiting');
+                    
+                    // Remove o elemento do DOM após a animação de saída (400ms)
+                    setTimeout(() => alert.remove(), 400);
+                    
+                }, delay);
+            });
+        });
+    </script>
+    {% endblock %}
+
+</body>
+</html>

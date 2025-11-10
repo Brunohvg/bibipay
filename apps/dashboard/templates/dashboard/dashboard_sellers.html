@@ -1,642 +1,69 @@
-{% extends 'base/base_mobile.html' %}
-{% load static %}
-
-{% block title %}Dashboard de Vendas | BibipPay{% endblock %}
-
-{% block extra_styles %}
-<style>
-    .mobile-header {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        padding: 20px 20px 30px;
-        color: white;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    }
-
-    .header-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .user-greeting {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .user-avatar {
-        width: 42px;
-        height: 42px;
-        background: rgba(255, 255, 255, 0.25);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 16px;
-        border: 2px solid rgba(255,255,255,0.3);
-    }
-
-    .greeting-text h2 {
-        font-size: 16px;
-        font-weight: 700;
-        margin-bottom: 2px;
-    }
-
-    .greeting-text p {
-        font-size: 13px;
-        opacity: 0.9;
-    }
-
-    .header-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .icon-btn {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.2);
-        border: none;
-        border-radius: 10px;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .icon-btn:active {
-        transform: scale(0.95);
-        background: rgba(255, 255, 255, 0.3);
-    }
-
-    .icon-btn .notification-dot {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 8px;
-        height: 8px;
-        background: var(--danger);
-        border-radius: 50%;
-        border: 2px solid white;
-    }
-
-    .header-stats {
-        background: rgba(255,255,255,0.15);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
-        padding: 16px;
-        border: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .stat-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-
-    .stat-row:last-child {
-        margin-bottom: 0;
-    }
-
-    .stat-label {
-        font-size: 13px;
-        opacity: 0.9;
-        font-weight: 500;
-    }
-
-    .stat-value {
-        font-size: 20px;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .stat-value small {
-        font-size: 12px;
-        font-weight: 600;
-        opacity: 0.8;
-    }
-
-    .quick-actions {
-        padding: 20px;
-        margin-top: -15px;
-    }
-
-    .action-button {
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
-        border: none;
-        border-radius: 16px;
-        padding: 18px;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 8px 24px rgba(102,126,234,0.4);
-        transition: all 0.3s ease;
-    }
-
-    .action-button:active {
-        transform: translateY(2px);
-        box-shadow: 0 4px 12px rgba(102,126,234,0.3);
-    }
-
-    .action-button i {
-        font-size: 20px;
-    }
-
-    .content {
-        padding: 0 20px 20px;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 24px;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 16px;
-        padding: 16px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        border: 1px solid var(--gray-100);
-    }
-
-    .stat-card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 12px;
-    }
-
-    .stat-card-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-    }
-
-    .stat-card-icon.purple {
-        background: rgba(102, 126, 234, 0.1);
-        color: var(--primary);
-    }
-
-    .stat-card-icon.green {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-    }
-
-    .stat-card-icon.orange {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--warning);
-    }
-
-    .stat-card-icon.blue {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--info);
-    }
-
-    .stat-card-trend {
-        font-size: 12px;
-        font-weight: 600;
-        padding: 4px 8px;
-        border-radius: 6px;
-    }
-
-    .stat-card-trend.up {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-    }
-
-    .stat-card-trend.down {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-    }
-
-    .stat-card-value {
-        font-size: 24px;
-        font-weight: 800;
-        color: var(--gray-900);
-        margin-bottom: 4px;
-    }
-
-    .stat-card-label {
-        font-size: 13px;
-        color: var(--gray-500);
-        font-weight: 500;
-    }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-        margin-top: 24px;
-    }
-
-    .section-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--gray-900);
-    }
-
-    .section-link {
-        color: var(--primary);
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: all 0.2s ease;
-    }
-
-    .section-link:active {
-        opacity: 0.7;
-    }
-
-    .sales-list {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        border: 1px solid var(--gray-100);
-    }
-
-    .sale-item {
-        padding: 16px;
-        border-bottom: 1px solid var(--gray-100);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        transition: background 0.2s ease;
-        cursor: pointer;
-    }
-
-    .sale-item:last-child {
-        border-bottom: none;
-    }
-
-    .sale-item:active {
-        background: var(--gray-50);
-    }
-
-    .sale-info {
-        flex: 1;
-    }
-
-    .sale-date {
-        font-size: 12px;
-        color: var(--gray-500);
-        margin-bottom: 4px;
-        font-weight: 500;
-    }
-
-    .sale-value {
-        font-size: 18px;
-        font-weight: 800;
-        color: var(--gray-900);
-        margin-bottom: 4px;
-    }
-
-    .sale-detail {
-        font-size: 13px;
-        color: var(--gray-600);
-        font-weight: 500;
-    }
-
-    .sale-status {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
-    }
-
-    .badge {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        user-select: none;
-    }
-
-    .badge-success {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-    }
-
-    .badge-warning {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--warning);
-    }
-
-    .badge-danger {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-    }
-
-    .chart-container {
-        background: white;
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        border: 1px solid var(--gray-100);
-        margin-bottom: 24px;
-    }
-
-    .chart-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-    }
-
-    .chart-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: var(--gray-900);
-    }
-
-    .chart-period {
-        font-size: 12px;
-        color: var(--gray-500);
-        font-weight: 500;
-    }
-</style>
-{% endblock %}
+{% extends 'base/mobile/base.html' %} {% block title %}Dashboard{% endblock %}
+{% block nav_active_inicio %}active{% endblock %}
 
 {% block content %}
-<!-- HEADER -->
-<div class="mobile-header">
-    <div class="header-top">
-        <div class="user-greeting">
-            <div class="user-avatar">
-                {% if user.first_name and user.last_name %}
-                    {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
-                {% else %}
-                    {{ user.username.0|upper }}
-                {% endif %}
-            </div>
-            <div class="greeting-text">
-                <h2>Olá, ##! 👋</h2>
-                <p>Veja suas vendas de hoje</p>
-            </div>
-        </div>
-        <div class="header-actions">
-            <button class="icon-btn" title="Notificações" onclick="alert('Sem notificações no momento')">
-                <i class="fas fa-bell"></i>
-                <!-- <span class="notification-dot"></span> -->
-            </button>
-            <form method="post" action="{% url 'accounts:logout' %}" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="icon-btn" title="Sair">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </form>
-        </div>
-    </div>
+    
+    <div class="month-navigator">
+        <a href="{{ previous_month_url }}" class="month-nav-link">
+            <i class="fas fa-chevron-left"></i>
+        </a>
 
-    <div class="header-stats">
-        <div class="stat-row">
-            <span class="stat-label">Vendas Hoje</span>
-            <span class="stat-value">
-                R$ {{ stats.today_amount|default:'0,00' }}
-                <small>/ {{ stats.today_count|default:'0' }} vendas</small>
-            </span>
+        <div class="month-nav-current">
+            {{ selected_period_name|default:'Este Mês' }}
+            <span class="year">{{ selected_period_year|default:'2025' }}</span>
         </div>
-        <div class="stat-row">
-            <span class="stat-label">Total do Mês</span>
-            <span class="stat-value">R$ {{ stats.month_amount|default:'0,00' }}</span>
-        </div>
-    </div>
-</div>
-
-<!-- QUICK ACTION -->
-<div class="quick-actions">
-    <button class="action-button" onclick="openModal('newSaleModal')">
-        <i class="fas fa-plus-circle"></i>
-        Lançar Nova Venda
-    </button>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags|default:'info' }}">
-                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' or message.tags == 'danger' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
-                <span>{{ message }}</span>
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon purple">
-                    <i class="fas fa-shopping-bag"></i>
-                </div>
-                <div class="stat-card-trend up">
-                    <i class="fas fa-arrow-up"></i> 12%
-                </div>
-            </div>
-            <div class="stat-card-value">{{ stats.month_count|default:'0' }}</div>
-            <div class="stat-card-label">Vendas no Mês</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon green">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-                <div class="stat-card-trend up">
-                    <i class="fas fa-arrow-up"></i> 8%
-                </div>
-            </div>
-            <div class="stat-card-value">R$ {{ stats.average_ticket|default:'0' }}</div>
-            <div class="stat-card-label">Ticket Médio</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon orange">
-                    <i class="fas fa-clock"></i>
-                </div>
-            </div>
-            <div class="stat-card-value">{{ stats.pending_count|default:'0' }}</div>
-            <div class="stat-card-label">Pendentes</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-card-header">
-                <div class="stat-card-icon blue">
-                    <i class="fas fa-trophy"></i>
-                </div>
-            </div>
-            <div class="stat-card-value">{{ stats.goal_percentage|default:'0' }}%</div>
-            <div class="stat-card-label">Meta do Mês</div>
-        </div>
-    </div>
-
-    <!-- Recent Sales -->
-    <div class="section-header">
-        <h2 class="section-title">Últimas Vendas</h2>
-        <a href="{% url 'sales:sales_list' %}" class="section-link">
-            Ver todas <i class="fas fa-chevron-right"></i>
+        
+        <a href="{{ next_month_url|default:'#' }}" class="month-nav-link {% if not next_month_url %}disabled{% endif %}">
+            <i class="fas fa-chevron-right"></i>
         </a>
     </div>
 
-    <div class="sales-list">
-        {% if recent_sales %}
+    <div class="stat-card-main">
+        <div class="label">Comissão Paga no Mês</div>
+        <div class="value">R$ {{ total_commission|default:'0.00' }}</div>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-card-small partial">
+            <div class="icon"><i class="fas fa-wallet"></i></div>
+            <div class="label">Pendente</div>
+            <div class="value">R$ {{ pending_commission|default:'0.00' }}</div>
+        </div>
+        <div class="stat-card-small">
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            <div class="label">Vendas no Mês</div>
+            <div class="value">{{ sales_count|default:0 }}</div>
+        </div>
+    </div>
+
+    <div class="card-list">
+        <div class="card-list-body">
+            <h2 class="section-title" style="padding: 12px 20px 0;">Vendas no Mês</h2>
+            
             {% for sale in recent_sales %}
-            <div class="sale-item" onclick="window.location.href='#'">
-                <div class="sale-info">
-                    <div class="sale-date">
-                        <i class="far fa-calendar"></i> {{ sale.date|date:"d/m/Y" }}
+                <div class="list-item">
+                    <div class="list-item-icon {% if sale.commission.paid %}credit{% else %}partial{% endif %}">
+                        {% if sale.commission.paid %}
+                            <i class="fas fa-check-double"></i> {% else %}
+                            <i class="fas fa-wallet"></i> {% endif %}
                     </div>
-                    <div class="sale-value">R$ {{ sale.total_amount|floatformat:2 }}</div>
-                    <div class="sale-detail">
-                        <i class="fas fa-user"></i> {{ sale.seller.get_full_name|default:sale.seller.username }}
+                    <div class="list-item-info">
+                        <span class="title">Venda - {{ sale.date|date:"d/m/Y" }}</span>
+                        <span class="subtitle">Valor Total: R$ {{ sale.total_amount }}</span>
+                    </div>
+                    <div class="list-item-amount">
+                        <span class="value" style="color: {% if sale.commission.paid %}var(--success){% else %}var(--gray-600){% endif %};">
+                            + R$ {{ sale.commission.value|default:'0.00' }}
+                        </span>
                     </div>
                 </div>
-                <div class="sale-status">
-                    <span class="badge badge-success">Confirmada</span>
-                    <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+            {% empty %}
+                <div class="empty-state" style="padding: 20px;">
+                    <i class="fas fa-box-open"></i>
+                    <p>Nenhuma venda no período selecionado.</p>
                 </div>
-            </div>
             {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h3>Nenhuma venda recente</h3>
-                <p>Comece lançando sua primeira venda!</p>
-            </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- MODAL NOVA VENDA -->
-<div class="modal" id="newSaleModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 class="modal-title" id="modalTitle">
-                <i class="fas fa-plus-circle"></i> Nova Venda
-            </h3>
-            <button class="close-btn" onclick="closeModal('newSaleModal')" aria-label="Fechar">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form method="post" action="{% url 'sales:sales_create' %}" id="newSaleForm" novalidate>
-                {% csrf_token %}
-                
-                <div class="form-group">
-                    <label class="form-label" for="date">
-                        Data da Venda <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="date" 
-                        name="date" 
-                        id="date" 
-                        class="form-control" 
-                        required
-                        value="{% now 'Y-m-d' %}"
-                    >
-                    <span class="form-hint">Data em que a venda foi realizada</span>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="total_amount">
-                        Valor Total <span class="required">*</span>
-                    </label>
-                    <input 
-                        type="number" 
-                        name="total_amount" 
-                        id="total_amount" 
-                        class="form-control" 
-                        placeholder="0,00" 
-                        step="0.01" 
-                        min="0"
-                        required
-                    >
-                    <span class="form-hint">Valor total da venda em reais</span>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="notes">
-                        Observações
-                    </label>
-                    <textarea 
-                        name="notes" 
-                        id="notes" 
-                        class="form-control" 
-                        rows="3" 
-                        placeholder="Detalhes adicionais sobre a venda..."
-                    ></textarea>
-                </div>
-
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-check"></i> Registrar Venda
-                </button>
-            </form>
+            
         </div>
     </div>
-</div>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-    function openNewSaleModal() {
-        openModal('newSaleModal');
-    }
-
-    // Form validation
-    document.getElementById('newSaleForm')?.addEventListener('submit', function(e) {
-        const amount = document.getElementById('total_amount').value;
-        const date = document.getElementById('date').value;
-
-        if (!amount || parseFloat(amount) <= 0) {
-            e.preventDefault();
-            alert('Por favor, insira um valor válido para a venda.');
-            return;
-        }
-
-        if (!date) {
-            e.preventDefault();
-            alert('Por favor, selecione a data da venda.');
-            return;
-        }
-    });
-
-    // Format currency input
-    document.getElementById('total_amount')?.addEventListener('blur', function(e) {
-        const value = parseFloat(e.target.value);
-        if (!isNaN(value)) {
-            e.target.value = value.toFixed(2);
-        }
-    });
-</script>
 {% endblock %}

@@ -1,44 +1,88 @@
-{% extends "base/base.html" %}
+{% extends 'base/mobile/base.html' %} {% block title %}Minhas Vendas{% endblock %}
+{% block nav_active_vendas %}active{% endblock %}
 
-{% block title %}Lista de Vendas{% endblock %}
+{% block extra_css %}
+<style>
+    .stat-card-small .value,
+    .list-item-info .subtitle,
+    .list-item-amount .value {
+        /* Permite que o navegador quebre uma "palavra" longa (como um número) */
+        overflow-wrap: break-word;
+        
+        /* Fallback para navegadores mais antigos */
+        word-break: break-word;
+    }
+</style>
+{% endblock %}
+
+
+{% block header_content %}
+    <span class="header-page-title">Minhas Vendas</span>
+    <div class="header-action"></div>
+{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Vendas Realizadas</h5>
+
+    <div class="month-navigator">
+        <a href="{{ previous_month_url|default:'#' }}" class="month-nav-link {% if not previous_month_url %}disabled{% endif %}">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <div class="month-nav-current">
+            {{ selected_period_name|default:'Mês' }}
+            <span class="year">{{ selected_period_year|default:'' }}</span>
         </div>
-        <div class="card-body">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Vendedor</th>
-                        <th>Data</th>
-                        <th>Valor Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for sale in sales %}
-                    <tr>
-                        <td>{{ sale.id }}</td>
-                        <td>{{ sale.seller }}</td>
-                        <td>{{ sale.date }}</td>
-                        <td>{{ sale.total_amount }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center">Nenhuma venda encontrada.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <a href="{{ next_month_url|default:'#' }}" class="month-nav-link {% if not next_month_url %}disabled{% endif %}">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+
+    <div class="card-list">
+        
+        <div class="stat-grid" style="padding: 20px 20px 0 20px; margin-bottom: 0;">
+            <div class="stat-card-small partial" style="background: var(--gray-50);">
+                <div class="icon"><i class="fas fa-wallet"></i></div>
+                <div class="label">Comissão Paga</div>
+                <div class="value">R$ {{ total_paid|default:'0.00' }}</div>
+            </div>
+            <div class="stat-card-small" style="background: var(--gray-50);">
+                <div class="icon"><i class="fas fa-history"></i></div>
+                <div class="label">Comissão Pendente</div>
+                <div class="value">R$ {{ total_pending|default:'0.00' }}</div>
+            </div>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid var(--gray-100); margin: 20px;">
+
+        <div class="card-list-body" style="padding-top: 0;">
+            
+            {% for sale in sales_list %}
+                <div class="list-item">
+                    <div class="list-item-icon {% if sale.commission.paid %}credit{% else %}partial{% endif %}">
+                        {% if sale.commission.paid %}
+                            <i class="fas fa-check-double"></i>
+                        {% else %}
+                            <i class="fas fa-wallet"></i>
+                        {% endif %}
+                    </div>
+                    <div class="list-item-info">
+                        <span class="title">Venda - {{ sale.date|date:"d/m/Y" }}</span>
+                        <span class="subtitle">Valor Total: R$ {{ sale.total_amount }}</span>
+                    </div>
+                    <div class="list-item-amount">
+                        <span class="value" style="color: {% if sale.commission.paid %}var(--success){% else %}var(--gray-600){% endif %};">
+                            + R$ {{ sale.commission.value|default:'0.00' }}
+                        </span>
+                        <span class="subtitle" style="font-weight: 600;">
+                            {% if sale.commission.paid %}Paga{% else %}Pendente{% endif %}
+                        </span>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty-state" style="padding: 20px;">
+                    <i class="fas fa-box-open"></i>
+                    <p>Nenhuma venda neste mês.</p>
+                </div>
+            {% endfor %}
         </div>
     </div>
-</div>
 {% endblock %}
-{% block extra_js %}
-<script>
-// Você pode adicionar scripts JavaScript adicionais aqui, se necessário
-</script>           
-{% endblock %}  
