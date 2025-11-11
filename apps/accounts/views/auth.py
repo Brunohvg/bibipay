@@ -18,7 +18,7 @@ class CustomLoginView(LoginView):
     "lembrar-me" (sessão) é responsabilidade da view (HTTP),
     e não do negócio.
     """
-    template_name = 'accounts/login.html'
+    template_name = 'accounts/auth/login.html'
     redirect_authenticated_user = True 
 
     def get_success_url(self):
