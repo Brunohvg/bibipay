@@ -64,25 +64,5 @@ class SaleListView(LoginRequiredMixin, ListView):
         # Você pode criar um serviço 'get_list_stats' se precisar,
         # ou manter agregações simples aqui (Sum, Count) do queryset.
         context = super().get_context_data(**kwargs)
+        context['stats'] = get_sales_dashboard_stats(self.request.user.id)
         return context
-
-
-@login_required(login_url='accounts:login')
-def sale_dashboard(request):
-    """Dashboard principal de vendas do vendedor"""
-    
-
-    # ======= A VIEW SÓ PEDE OS DADOS PRONTOS =======
-    
-    # 1. Pede as estatísticas prontas
-    stats = get_sales_dashboard_stats(request.user.id)
-    
-    # 2. Pede as vendas recentes (o serviço já ordena)
-    recent_sales = get_sales_by_seller(request.user.id)[:10]
-    
-    context = {
-        'stats': stats,
-        'recent_sales': recent_sales,
-    }
-    
-    return render(request, 'sales/sales_dashboard.html', context)

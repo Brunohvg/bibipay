@@ -353,9 +353,13 @@
                     <span class="name">{{ request.user.first_name|default:"Vendedor" }}</span>
                 </div>
             </div>
-            <a href="#" class="header-action">
-                <i class="fas fa-bell"></i>
-            </a>
+            <form action="{% url 'accounts:logout' %}" method="post" style="margin:0; padding:0;">
+                {% csrf_token %}
+                <button type="submit" class="header-action" title="Sair" style="background:none; border:none; cursor:pointer;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </form>
+
             {% endblock %}
         </header>
 

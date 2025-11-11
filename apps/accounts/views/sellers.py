@@ -82,7 +82,7 @@ class SellersDetailView(DetailView, LoginRequiredMixin):
     A view pede o vendedor ao SERVIÇO.
     """
     model = User # Opcional
-    template_name = 'accounts/sellers_detail.html'
+    template_name = 'accounts/sellers/sellers_detail.html'
     context_object_name = 'seller'
 
     def get_object(self, queryset=None):
@@ -124,7 +124,7 @@ class SellersDestroyView(DeleteView, LoginRequiredMixin):
     A view pede o vendedor ao SERVIÇO.
     """
     model = User
-    template_name = 'accounts/sellers_confirm_delete.html'
+    template_name = 'accounts/sellers/sellers_confirm_delete.html'
     context_object_name = 'seller'
     success_url = reverse_lazy('accounts:sellers_list')
 

@@ -5,7 +5,7 @@ from apps.sales.services import get_total_sales_amount_for_active_sellers
 
 
 class AdminDashboardView(BaseDashboardView):
-    template_name = 'dashboard/dashboard_admin.html'
+    template_name = 'dashboard/admin/dashboard_admin.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
