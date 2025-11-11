@@ -1,6 +1,4 @@
 # apps/accounts/views.py
-
-from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import CreateView, ListView, DetailView, DeleteView, UpdateView, View
 from django.shortcuts import redirect
 from django.contrib import messages
@@ -12,49 +10,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.accounts.models import User
 from apps.accounts.forms import SellersCreationForm, SellersUpdateForm
 
-
-# Utils (perfeito, continua como está)
-from apps.core.utils import redirect_user_by_type
 # =========================================================
 # MUDANÇA: Importamos nosso novo arquivo de serviços!
 # =========================================================
-from . import services
-
-
-# ==========================
-# VIEW DE LOGIN PERSONALIZADA
-# ==========================
-class CustomLoginView(LoginView):
-    """
-    (Sem mudança)
-    Esta view já está ótima. A lógica de "redirecionar" (utils) e
-    "lembrar-me" (sessão) é responsabilidade da view (HTTP),
-    e não do negócio.
-    """
-    template_name = 'accounts/login.html'
-    redirect_authenticated_user = True 
-
-    def get_success_url(self):
-        return redirect_user_by_type(self.request.user)
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        if not self.request.POST.get('remember_me'):
-            self.request.session.set_expiry(0)
-            self.request.session.modified = True
-        return response
-
-    def form_invalid(self, form):
-        messages.error(self.request, "E-mail ou CPF e senha inválidos.", extra_tags='danger')
-        return super().form_invalid(form)
-
-
-# ==========================
-# VIEW DE LOGOUT
-# ==========================
-class CustomLogoutView(LogoutView):
-    """(Sem mudança)"""
-    next_page = '/accounts/login/'
+from apps.accounts import services
 
 
 # ==========================
@@ -68,7 +27,7 @@ class SellersCreateView(CreateView, LoginRequiredMixin):
     (em forms.py) cuida da criação e validação do usuário.
     Está perfeito.
     """
-    template_name = 'accounts/sellers_create.html'
+    template_name = 'accounts/sellers/sellers_create.html'
     form_class = SellersCreationForm
     success_url = reverse_lazy('dashboard:dashboard_admin') 
 
@@ -86,7 +45,7 @@ class SellersListView(ListView, LoginRequiredMixin):
     A view agora pede a lista ao SERVIÇO.
     """
     model = User # Opcional, mas bom manter
-    template_name = 'accounts/sellers_list.html'
+    template_name = 'accounts/sellers/sellers_list.html'
     context_object_name = 'sellers'
 
     def get_queryset(self):
@@ -144,7 +103,7 @@ class SellersUpdateView(UpdateView, LoginRequiredMixin):
     """
     model = User
     form_class = SellersUpdateForm
-    template_name = 'accounts/sellers_update.html'
+    template_name = 'accounts/sellers/sellers_update.html'
     context_object_name = 'seller'
     success_url = reverse_lazy('accounts:sellers_list')
 

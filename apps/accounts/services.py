@@ -77,16 +77,3 @@ def toggle_seller_status(user_id: int) -> User:
     seller.save(update_fields=['is_active'])
     
     return seller
-
-# NOTA: Por que não temos um 'create_seller' aqui?
-#
-# No seu caso, a 'SellersCreateView' usa 'SellersCreationForm', que é
-# um ModelForm (provavelmente herdando de UserCreationForm).
-#
-# O ModelForm já é uma excelente forma de separar a lógica! A lógica de
-# "como criar" e "validar" o vendedor já está no 'forms.py', o que
-# é ótimo. A view apenas chama 'form.save()'.
-#
-# Se a criação fosse mais complexa (ex: criar um vendedor E enviar um 
-# email de boas-vindas E criar um perfil), aí sim criaríamos um 
-# serviço 'create_seller' aqui. Por enquanto, seu código está ótimo!
