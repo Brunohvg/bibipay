@@ -133,3 +133,26 @@ class SellersUpdateForm(forms.ModelForm):
                 'placeholder': '000.000.000-00'
             }),
         }       
+
+
+class SellerProfileForm(forms.ModelForm):
+    """
+    Formulário para o vendedor editar o próprio perfil.
+    """
+    class Meta:
+        model = User
+        # Campos que o vendedor PODE editar:
+        fields = ['first_name', 'last_name', 'email']
+        
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_email(self):
+        # Garante que o email não seja alterado para um já existente
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Este e-mail já está em uso por outra conta.")
+        return email

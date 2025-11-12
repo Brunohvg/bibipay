@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 # Importa o modelo e formulários (a view ainda precisa saber sobre eles)
 from apps.accounts.models import User
-from apps.accounts.forms import SellersCreationForm, SellersUpdateForm
+from apps.accounts.forms import SellersCreationForm, SellersUpdateForm, SellerProfileForm
 
 # =========================================================
 # MUDANÇA: Importamos nosso novo arquivo de serviços!
@@ -162,3 +162,31 @@ class SellersDeactivateView(View, LoginRequiredMixin):
 
         # A view continua responsável pelo redirecionamento (HTTP)
         return redirect(reverse_lazy('accounts:sellers_list'))
+
+
+# ==========================
+# PERFIL DO VENDEDOR (NOVO)
+# ==========================
+class SellerProfileUpdateView(LoginRequiredMixin, UpdateView):
+    """
+    Permite ao vendedor logado ver e editar seu próprio perfil.
+    """
+    model = User
+    form_class = SellerProfileForm
+    template_name = 'accounts/sellers/seller_profile.html'
+    success_url = reverse_lazy('accounts:seller_profile') # Recarrega a própria página
+    login_url = 'accounts:login'
+
+    def get_object(self, queryset=None):
+        """
+        Esta é a parte mais importante:
+        Garante que o objeto a ser editado é SEMPRE o usuário logado.
+        """
+        return self.request.user
+
+    def form_valid(self, form):
+        """
+        Adiciona uma mensagem de sucesso antes de salvar.
+        """
+        messages.success(self.request, "Perfil atualizado com sucesso!", extra_tags='success')
+        return super().form_valid(form)

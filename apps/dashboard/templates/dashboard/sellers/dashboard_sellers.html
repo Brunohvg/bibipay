@@ -2,68 +2,75 @@
 {% block nav_active_inicio %}active{% endblock %}
 
 {% block content %}
-    
+
     <div class="month-navigator">
-        <a href="{{ previous_month_url }}" class="month-nav-link">
+        <a href="{{ previous_month_url|default:'#' }}" class="month-nav-link">
             <i class="fas fa-chevron-left"></i>
         </a>
-
         <div class="month-nav-current">
-            {{ selected_period_name|default:'Este Mês' }}
-            <span class="year">{{ selected_period_year|default:'2025' }}</span>
+            {{ selected_period_name|default:'Mês Atual' }}
+            <span class="year">{{ selected_period_year|default:'' }}</span>
         </div>
-        
         <a href="{{ next_month_url|default:'#' }}" class="month-nav-link {% if not next_month_url %}disabled{% endif %}">
             <i class="fas fa-chevron-right"></i>
         </a>
     </div>
 
     <div class="stat-card-main">
-        <div class="label">Comissão Paga no Mês</div>
-        <div class="value">R$ {{ total_commission|default:'0.00' }}</div>
+        <div class="label">Comissão ({{ selected_period_name|default:'Mês' }})</div>
+        <div class="value">R$ {{ total_commission|default:'0,00' }}</div>
     </div>
 
-    <div class="stat-grid">
-        <div class="stat-card-small partial">
-            <div class="icon"><i class="fas fa-wallet"></i></div>
-            <div class="label">Pendente</div>
-            <div class="value">R$ {{ pending_commission|default:'0.00' }}</div>
+    <div class="stat-grid"> 
+        <div class="stat-card-small">
+            <div class="icon"><i class="fas fa-calendar-day"></i></div>
+            <div class="label">Vendas Hoje</div>
+            <div class="value">R$ {{ stats.today_amount|default:'0,00' }}</div>
+        </div>
+        <div class="stat-card-small">
+            <div class="icon"><i class="fas fa-calendar-minus"></i></div>
+            <div class="label">Vendas Ontem</div>
+            <div class="value">R$ {{ stats.yesterday_amount|default:'0,00' }}</div>
         </div>
         <div class="stat-card-small">
             <div class="icon"><i class="fas fa-shopping-cart"></i></div>
             <div class="label">Vendas no Mês</div>
-            <div class="value">{{ sales_count|default:0 }}</div>
+            <div class="value">{{ stats.month_count|default:0 }}</div>
+        </div>
+        <div class="stat-card-small">
+            <div class="icon"><i class="fas fa-chart-line"></i></div>
+            <div class="label">Ticket Médio</div>
+            <div class="value">R$ {{ stats.average_ticket|default:'0,00' }}</div>
         </div>
     </div>
 
     <div class="card-list">
         <div class="card-list-body">
-            <h2 class="section-title" style="padding: 12px 20px 0;">Vendas no Mês</h2>
+            <h2 class="section-title" style="padding: 12px 20px 0;">
+                Vendas Detalhadas ({{ selected_period_name|default:'Mês' }})
+            </h2>
             
             {% for sale in recent_sales %}
                 <div class="list-item">
-                    <div class="list-item-icon {% if sale.commission.paid %}credit{% else %}partial{% endif %}">
-                        {% if sale.commission.paid %}
-                            <i class="fas fa-check-double"></i> {% else %}
-                            <i class="fas fa-wallet"></i> {% endif %}
+                    <div class="list-item-icon partial">
+                        <i class="fas fa-wallet"></i>
                     </div>
                     <div class="list-item-info">
-                        <span class="title">Venda - {{ sale.date|date:"d/m/Y" }}</span>
-                        <span class="subtitle">Valor Total: R$ {{ sale.total_amount }}</span>
+                        <span class="title">Venda #{{ sale.id }}</span>
+                        <span class="subtitle">{{ sale.date|date:"d/m/Y" }} - Total: R$ {{ sale.total_amount|floatformat:2 }}</span>
                     </div>
                     <div class="list-item-amount">
-                        <span class="value" style="color: {% if sale.commission.paid %}var(--success){% else %}var(--gray-600){% endif %};">
-                            + R$ {{ sale.commission.value|default:'0.00' }}
+                        <span class="value" style="color: var(--gray-600);">
+                            + R$ {{ sale.calculated_commission|floatformat:2 }}
                         </span>
                     </div>
                 </div>
             {% empty %}
                 <div class="empty-state" style="padding: 20px;">
                     <i class="fas fa-box-open"></i>
-                    <p>Nenhuma venda no período selecionado.</p>
+                    <p>Nenhuma venda neste período.</p>
                 </div>
             {% endfor %}
-            
         </div>
     </div>
 {% endblock %}

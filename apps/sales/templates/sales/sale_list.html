@@ -1,88 +1,424 @@
-{% extends 'base/mobile/base.html' %} {% block title %}Minhas Vendas{% endblock %}
+{% extends 'base/mobile/base.html' %} 
+
+{% block title %}Minhas Vendas{% endblock %}
 {% block nav_active_vendas %}active{% endblock %}
 
 {% block extra_css %}
 <style>
-    .stat-card-small .value,
-    .list-item-info .subtitle,
-    .list-item-amount .value {
-        /* Permite que o navegador quebre uma "palavra" longa (como um número) */
-        overflow-wrap: break-word;
-        
-        /* Fallback para navegadores mais antigos */
-        word-break: break-word;
+    /* --- CSS do Formulário de Filtro --- */
+    .filter-form-wrapper {
+        background: white;
+        padding: 16px 20px 20px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid var(--gray-100);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .filter-form-wrapper h2 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--gray-900);
+        margin-bottom: 12px;
+    }
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    @media (max-width: 400px) {
+        .filter-grid { grid-template-columns: 1fr 1fr; }
+        .filter-group-day { grid-column: 1 / -1; }
+    }
+    .filter-group { flex: 1; }
+    .filter-group label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+    .filter-select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid var(--gray-200);
+        border-radius: 8px;
+        font-size: 14px;
+        background: var(--gray-50);
+        font-family: 'Inter', sans-serif;
+        appearance: none; -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+    }
+    .filter-actions { display: flex; gap: 10px; }
+    .filter-btn-submit { flex: 2; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; background: var(--primary); color: white; transition: background 0.2s ease; }
+    .filter-btn-submit:hover { background: var(--primary-dark); }
+    .filter-btn-clear { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; background: var(--gray-100); color: var(--gray-700); text-align: center; text-decoration: none; }
+
+    /* --- CSS dos Cards de Total --- */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; grid-auto-rows: 1fr; }
+    .stat-card-small { background: white; padding: 16px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); border: 1px solid var(--gray-100); display: flex; flex-direction: column; height: 100%; }
+    .stat-card-small .icon { font-size: 20px; margin-bottom: 10px; color: var(--primary); }
+    .stat-card-small .label { font-size: 13px; color: var(--gray-600); margin-bottom: 6px; }
+    .stat-card-small .value { font-size: 22px; font-weight: 700; color: var(--gray-900); }
+
+    /* --- CSS da Lista (Botões Editar e Excluir) --- */
+    .list-item-actions { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: flex-end; 
+        text-align: right; 
+    }
+    
+    /* BOTÃO EDITAR (NOVO) */
+    .edit-btn {
+        color: var(--primary); /* Cor azul */
+        font-size: 13px;
+        margin-top: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 2px 4px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+    }
+    .edit-btn i { margin-right: 4px; }
+    
+    .delete-btn {
+        color: var(--danger);
+        font-size: 13px;
+        margin-top: 4px; /* Espaço menor entre botões */
+        text-decoration: none;
+        font-weight: 600;
+        padding: 2px 4px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: 'Inter', sans-serif;
+    }
+    .delete-btn i { margin-right: 4px; }
+    
+    /* --- CSS DO MODAL (VISUAL MELHORADO) --- */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+    .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transform: scale(0.95);
+        transition: transform 0.2s ease;
+        text-align: center; /* Centraliza */
+    }
+    .modal-overlay.show .modal-content {
+        transform: scale(1);
+    }
+    .modal-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin: 0 auto 16px auto;
+        border: 4px solid rgba(239, 68, 68, 0.05);
+    }
+    .modal-content h2.section-title {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+    .modal-content p {
+        font-size: 15px;
+        color: var(--gray-600);
+        margin-bottom: 16px;
+        line-height: 1.5;
+    }
+    #deleteModalSaleInfo {
+        font-weight: 600; 
+        color: var(--gray-800); 
+        background-color: var(--gray-50); 
+        padding: 10px; 
+        border-radius: 8px;
+        border: 1px solid var(--gray-200);
+    }
+    .modal-danger-text {
+        font-weight: 700;
+        color: var(--danger);
+        margin-top: 16px;
+        margin-bottom: 24px;
+    }
+    .modal-actions {
+        display: flex;
+        flex-direction: column; /* Botões um em cima do outro */
+        gap: 12px;
+    }
+    .modal-actions .btn-cancel {
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center;
+        width: 100%; 
+        padding: 14px 20px; 
+        border: none; 
+        border-radius: 10px; 
+        font-size: 16px; 
+        font-weight: 600; 
+        cursor: pointer;
+        background: var(--gray-200);
+        color: var(--gray-800);
+        text-align: center;
+        text-decoration: none;
     }
 </style>
 {% endblock %}
 
 
 {% block header_content %}
-    <span class="header-page-title">Minhas Vendas</span>
+    <h1 class="header-page-title">Minhas Vendas</h1>
     <div class="header-action"></div>
 {% endblock %}
 
-{% block content %}
 
-    <div class="month-navigator">
-        <a href="{{ previous_month_url|default:'#' }}" class="month-nav-link {% if not previous_month_url %}disabled{% endif %}">
-            <i class="fas fa-chevron-left"></i>
-        </a>
-        <div class="month-nav-current">
-            {{ selected_period_name|default:'Mês' }}
-            <span class="year">{{ selected_period_year|default:'' }}</span>
-        </div>
-        <a href="{{ next_month_url|default:'#' }}" class="month-nav-link {% if not next_month_url %}disabled{% endif %}">
-            <i class="fas fa-chevron-right"></i>
-        </a>
+{% block content %}
+    
+    <div class="filter-form-wrapper">
+        <h2>Filtrar Histórico</h2>
+        <form method="GET" action="{% url 'sales:sales_list' %}">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="id_year">Ano</label>
+                    <select name="year" id="id_year" class="filter-select">
+                        <option value="">Todos</option>
+                        {% for year in year_choices %}
+                            <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>
+                                {{ year }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="id_month">Mês</label>
+                    <select name="month" id="id_month" class="filter-select">
+                        <option value="">Todos</option>
+                        {% for num, name in month_choices %}
+                            <option value="{{ num }}" {% if selected_month == num|stringformat:"s" %}selected{% endif %}>
+                                {{ name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group filter-group-day">
+                    <label for="id_day">Dia</label>
+                    <select name="day" id="id_day" class="filter-select">
+                        <option value="">Todos</option>
+                        {% for day in day_choices %}
+                            <option value="{{ day }}" {% if selected_day == day %}selected{% endif %}>
+                                {{ day }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="filter-btn-submit">Filtrar</button>
+                <a href="?year=&month=&day=" class="filter-btn-clear">Limpar</a>
+            </div>
+        </form>
     </div>
 
-    <div class="card-list">
-        
-        <div class="stat-grid" style="padding: 20px 20px 0 20px; margin-bottom: 0;">
-            <div class="stat-card-small partial" style="background: var(--gray-50);">
-                <div class="icon"><i class="fas fa-wallet"></i></div>
-                <div class="label">Comissão Paga</div>
-                <div class="value">R$ {{ total_paid|default:'0.00' }}</div>
-            </div>
-            <div class="stat-card-small" style="background: var(--gray-50);">
-                <div class="icon"><i class="fas fa-history"></i></div>
-                <div class="label">Comissão Pendente</div>
-                <div class="value">R$ {{ total_pending|default:'0.00' }}</div>
-            </div>
+    <div class="stat-grid">
+        <div class="stat-card-small">
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            <div class="label">Total Vendas (Filtro)</div>
+            <div class="value">R$ {{ total_sales_filtered }}</div>
         </div>
-        
-        <hr style="border: none; border-top: 1px solid var(--gray-100); margin: 20px;">
+        <div class="stat-card-small">
+            <div class="icon"><i class="fas fa-wallet"></i></div>
+            <div class="label">Total Comissão (Filtro)</div>
+            <div class="value">R$ {{ total_commission_filtered }}</div>
+        </div>
+    </div>
 
-        <div class="card-list-body" style="padding-top: 0;">
+
+    <div class="card-list">
+        <div class="card-list-body">
+            <h2 class="section-title" style="padding: 12px 20px 0;">
+                Histórico de Vendas
+            </h2>
             
-            {% for sale in sales_list %}
+            {% for sale in sales %}
                 <div class="list-item">
-                    <div class="list-item-icon {% if sale.commission.paid %}credit{% else %}partial{% endif %}">
-                        {% if sale.commission.paid %}
-                            <i class="fas fa-check-double"></i>
-                        {% else %}
-                            <i class="fas fa-wallet"></i>
-                        {% endif %}
+                    <div class="list-item-icon partial">
+                        <i class="fas fa-wallet"></i>
                     </div>
+                    
                     <div class="list-item-info">
-                        <span class="title">Venda - {{ sale.date|date:"d/m/Y" }}</span>
-                        <span class="subtitle">Valor Total: R$ {{ sale.total_amount }}</span>
+                        <span class="title">Venda #{{ sale.id }}</span>
+                        <span class="subtitle">{{ sale.date|date:"d/m/Y" }} - Total: R$ {{ sale.total_amount|floatformat:2 }}</span>
                     </div>
-                    <div class="list-item-amount">
-                        <span class="value" style="color: {% if sale.commission.paid %}var(--success){% else %}var(--gray-600){% endif %};">
-                            + R$ {{ sale.commission.value|default:'0.00' }}
+                    
+                    <div class="list-item-actions">
+                        <span class="value" style="color: var(--gray-600); font-size: 16px; font-weight: 600;">
+                            + R$ {{ sale.calculated_commission|floatformat:2 }}
                         </span>
-                        <span class="subtitle" style="font-weight: 600;">
-                            {% if sale.commission.paid %}Paga{% else %}Pendente{% endif %}
-                        </span>
+                        
+                        <a href="{% url 'sales:sales_update' sale.pk %}" class="edit-btn">
+                            <i class="fas fa-edit"></i>Editar
+                        </a>
+
+                        <button type="button" class="delete-btn js-open-delete-modal"
+                                data-url="{% url 'sales:sales_delete' sale.pk %}"
+                                data-sale-info="Venda #{{ sale.id }} (R$ {{ sale.total_amount|floatformat:2 }})">
+                            <i class="fas fa-trash-alt"></i>Excluir
+                        </button>
                     </div>
                 </div>
             {% empty %}
                 <div class="empty-state" style="padding: 20px;">
                     <i class="fas fa-box-open"></i>
-                    <p>Nenhuma venda neste mês.</p>
+                    <p>Nenhuma venda encontrada para este filtro.</p>
                 </div>
             {% endfor %}
         </div>
     </div>
+
+    {% if is_paginated %}
+    <div class="pagination-wrapper" style="margin-top: 20px; border-radius: 12px; padding: 12px; border: 1px solid var(--gray-100); background: white;">
+        
+        {% with request.GET.urlencode as params %}
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}&{{ params }}" class="pagination-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            {% else %}
+                <button class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            {% endif %}
+
+            <span class="pagination-info">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}&{{ params }}" class="pagination-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            {% else %}
+                <button class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            {% endif %}
+        {% endwith %}
+    </div>
+    {% endif %}
+
+    
+    <div class="modal-overlay" id="deleteModalOverlay" style="display: none;">
+        <div class="modal-content">
+            
+            <form method="post" id="deleteModalForm" action="">
+                {% csrf_token %}
+                
+                <div class="modal-icon">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+
+                <h2 class="section-title">Confirmar Exclusão</h2>
+                <p>Tem certeza que deseja excluir esta venda?</p>
+                
+                <p id="deleteModalSaleInfo"></p>
+                
+                <p class="modal-danger-text">
+                    Esta ação não pode ser desfeita.
+                </p>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-danger-mobile">
+                        <i class="fas fa-trash-alt"></i> Sim, excluir
+                    </button>
+                    <button type="button" class="btn-cancel" id="closeDeleteModal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+{{ block.super }}
+
+<div id="loader">
+    <div class="spinner"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const modalOverlay = document.getElementById('deleteModalOverlay');
+    // Se não houver modal nesta página, não faz nada
+    if (!modalOverlay) return;
+    
+    const modalForm = document.getElementById('deleteModalForm');
+    const saleInfoText = document.getElementById('deleteModalSaleInfo');
+    const closeBtn = document.getElementById('closeDeleteModal');
+    
+    // 1. Função para Abrir o modal
+    function openModal(e) {
+        e.preventDefault();
+        const url = e.currentTarget.dataset.url;
+        const info = e.currentTarget.dataset.saleInfo;
+        
+        // Configura o formulário do modal
+        modalForm.action = url;
+        saleInfoText.textContent = info;
+        
+        // Mostra o modal com animação
+        modalOverlay.style.display = 'flex';
+        setTimeout(() => modalOverlay.classList.add('show'), 10);
+    }
+    
+    // 2. Função para Fechar o modal
+    function closeModal() {
+        modalOverlay.classList.remove('show');
+        setTimeout(() => modalOverlay.style.display = 'none', 200); // Espera a animação
+    }
+
+    // 3. Adiciona os "ouvintes" (event listeners)
+    
+    // Adiciona em todos os botões de "Excluir"
+    document.querySelectorAll('.js-open-delete-modal').forEach(button => {
+        button.addEventListener('click', openModal);
+    });
+    
+    // Botão de fechar "Cancelar"
+    closeBtn.addEventListener('click', closeModal);
+
+    // Fechar ao clicar no fundo escuro
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+});
+</script>
 {% endblock %}

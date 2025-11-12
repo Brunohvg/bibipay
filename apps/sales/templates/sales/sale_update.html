@@ -1,11 +1,13 @@
 {% extends 'base/mobile/base.html' %}
 
-{% block title %}Lançar Venda{% endblock %}
-{% block nav_active_lancar %}active{% endblock %}
+{% block title %}Editar Venda{% endblock %}
+{% block nav_active_vendas %}active{% endblock %}
 
 {% block header_content %}
-    <span class="header-page-title">Lançar Venda</span>
-    <div class="header-action"></div> 
+    <span class="header-page-title">Editar Venda #{{ sale.id }}</span>
+    <a href="{% url 'sales:sales_list' %}" class="header-action" title="Cancelar">
+        <i class="fas fa-times"></i>
+    </a> 
 {% endblock %}
 
 {% block content %}
@@ -13,7 +15,7 @@
     <div class="card-list">
         <div class="card-list-body" style="padding: 24px 20px;">
         
-            <h2 class="section-title">Registrar Nova Venda</h2>
+            <h2 class="section-title">Atualizar Venda</h2>
 
             <form method="POST" novalidate>
                 {% csrf_token %}
@@ -43,7 +45,7 @@
                 
                 <button type="submit" class="btn-mobile btn-primary-mobile" style="margin-top: 20px;">
                     <i class="fas fa-save"></i>
-                    Salvar Venda
+                    Salvar Alterações
                 </button>
             </form>
 

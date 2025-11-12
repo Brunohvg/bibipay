@@ -1,100 +1,133 @@
+# Em apps/sales/services.py (ou onde suas funções estão)
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from datetime import timedelta
+from datetime import timedelta, date # 👈 Garanta que 'date' está importado
 from decimal import Decimal
-from .models import Sale
+from apps.sales.models import Sale
 from apps.accounts.models import User
-from django.db.models import Sum
+from django.db.models import Sum, Avg, Count
+from django.utils.timezone import localdate
 
 def create_sale(user, form):
     """
-    Cria uma nova venda, atribuindo o vendedor corretamente.
-    Lança ValidationError se algo falhar.
+    Cria uma nova venda, associando automaticamente ao vendedor logado.
     """
-    if not hasattr(user, 'user_type') or user.user_type != 'sellers':
+    if getattr(user, 'user_type', None) != 'sellers':
         raise ValidationError("Apenas vendedores podem criar vendas.")
 
     try:
-        # Cria a instância sem salvar ainda
         sale = form.save(commit=False)
         sale.seller = user
         sale.save()
-        # form.save_m2m() # se houver campos ManyToMany
         return sale
 
     except Exception as e:
         raise ValidationError(f"Erro ao salvar a venda: {e}")
 
 
-def get_sales_by_seller(seller_id: int, period: str = None):
+
+
+
+# ... (a função create_sale continua igual) ...
+
+
+def get_sales_by_seller(seller_id: int, year: int = None, month: int = None):
     """
-    Busca as vendas de um vendedor, com filtros de período opcionais.
+    Retorna as vendas de um vendedor.
+    - Se 'year' e 'month' forem fornecidos, filtra por esse período.
+    - Se não, retorna TODAS as vendas do vendedor.
     """
     queryset = Sale.objects.filter(seller_id=seller_id)
-    today = timezone.now().date()
-
-    if period == 'today':
-        queryset = queryset.filter(date=today)
-    elif period == 'week':
-        week_start = today - timedelta(days=today.weekday())
-        queryset = queryset.filter(date__gte=week_start)
-    elif period == 'month':
-        queryset = queryset.filter(date__year=today.year, date__month=today.month)
-    elif period == 'last_month':
-        last_month = today.replace(day=1) - timedelta(days=1)
-        queryset = queryset.filter(
-            date__year=last_month.year,
-            date__month=last_month.month
-        )
-
+    
+    # Filtro opcional para o dashboard
+    if year and month:
+        queryset = queryset.filter(date__year=year, date__month=month)
+    
+    # Retorna todas (ou as filtradas) ordenadas
     return queryset.order_by('-date', '-created_at')
 
-
-def get_sales_dashboard_stats(seller_id: int):
+def get_sales_dashboard_stats(seller_id: int, year: int, month: int):
     """
-    Calcula todas as estatísticas para o dashboard do vendedor.
+    Calcula as estatísticas do dashboard para um ANO e MÊS específicos.
     """
-    user_sales = get_sales_by_seller(seller_id)
-    today = timezone.now().date()
-    month_start = today.replace(day=1)
+    
+    # Período selecionado
+    selected_period_start = date(year, month, 1)
+    today = localdate() # Data de hoje (para "Hoje" e "Ontem")
+    
+    # Define o fim do período selecionado
+    if month == today.month and year == today.year:
+        selected_period_end = today
+    else:
+        # Pega o último dia daquele mês
+        next_month_start = (selected_period_start + timedelta(days=32)).replace(day=1)
+        selected_period_end = next_month_start - timedelta(days=1)
 
-    # Estatísticas do dia
+    yesterday = today - timedelta(days=1)
+
+    # Todas as vendas do vendedor
+    user_sales = Sale.objects.filter(seller_id=seller_id)
+
+    # === Hoje === (Sempre baseado em 'today')
     today_sales = user_sales.filter(date=today)
     today_stats = today_sales.aggregate(
-        count=models.Count('id'),
-        total=models.Sum('total_amount')
+        count=models.Count("id"),
+        total=models.Sum("total_amount"),
     )
 
-    # Estatísticas do mês
-    month_sales = user_sales.filter(date__gte=month_start)
+    # === Ontem === (Sempre baseado em 'yesterday')
+    yesterday_sales = user_sales.filter(date=yesterday)
+    yesterday_stats = yesterday_sales.aggregate(
+        count=models.Count("id"),
+        total=models.Sum("total_amount"),
+    )
+
+    # === Mês Selecionado === (FILTRO PRINCIPAL)
+    month_sales = user_sales.filter(
+        date__gte=selected_period_start, 
+        date__lte=selected_period_end
+    )
     month_stats = month_sales.aggregate(
-        count=models.Count('id'),
-        total=models.Sum('total_amount'),
-        average=models.Avg('total_amount')
+        count=models.Count("id"),
+        total=models.Sum("total_amount"),
+        average=models.Avg("total_amount"),
     )
 
-    today_amount = today_stats['total'] or Decimal('0.00')
-    month_amount = month_stats['total'] or Decimal('0.00')
-    average_ticket = month_stats['average'] or Decimal('0.00')
+    # === Cálculos finais ===
+    today_amount = today_stats["total"] or Decimal("0.00")
+    yesterday_amount = yesterday_stats["total"] or Decimal("0.00")
+    month_amount = month_stats["total"] or Decimal("0.00")
+    average_ticket = month_stats["average"] or Decimal("0.00")
 
+    commission_rate = Decimal("0.00")
+    if user_sales.exists():
+        # Pega a taxa do usuário (vendedor)
+        commission_rate = user_sales.first().seller.commission_rate or Decimal("0.00")
+    
+    month_commission = (month_amount * commission_rate) / Decimal("100")
+
+    # === Retorno formatado ===
     return {
-        'today_count': today_stats['count'] or 0,
-        'today_amount': f"{today_amount:.2f}".replace('.', ','),
-        'month_count': month_stats['count'] or 0,
-        'month_amount': f"{month_amount:.2f}".replace('.', ','),
-        'average_ticket': f"{average_ticket:.2f}".replace('.', ','),
+        "today_count": today_stats["count"] or 0,
+        "today_amount": f"{today_amount:.2f}".replace(".", ","),
+        "yesterday_count": yesterday_stats["count"] or 0,
+        "yesterday_amount": f"{yesterday_amount:.2f}".replace(".", ","),
+        "month_count": month_stats["count"] or 0,
+        "month_amount": f"{month_amount:.2f}".replace(".", ","),
+        "average_ticket": f"{average_ticket:.2f}".replace(".", ","),
+        "month_commission": f"{month_commission:.2f}".replace(".", ","),
     }
 
+# ... (a função get_total_sales_amount_for_active_sellers continua igual) ...
+def get_total_sales_amount_for_active_sellers(seller_id: int = None) -> Decimal:
+    """
+    Calcula o total de vendas de todos os vendedores ativos
+    ou de um vendedor específico, se informado.
+    """
+    sellers = User.objects.filter(user_type='sellers', is_active=True)
+    if seller_id:
+        sellers = sellers.filter(id=seller_id)
 
-def get_total_sales_amount_for_active_sellers() -> Decimal:
-    """
-    Calcula a soma de todas as vendas feitas por vendedores ativos.
-    """
-    total = User.objects.filter(
-        user_type='sellers',
-        is_active=True
-    ).aggregate(
-        total=Sum('sales__total_amount')
-    )['total'] or Decimal('0.00')
+    total = sellers.aggregate(total=Sum('sales__total_amount'))['total'] or Decimal('0.00')
     return total
