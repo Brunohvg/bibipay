@@ -1,7 +1,7 @@
 from django.db import models
-from apps.core.models import BaseModel
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from apps.core.models import BaseModel
 
 
 class Sale(BaseModel):
@@ -20,13 +20,13 @@ class Sale(BaseModel):
         ordering = ['-date']
         constraints = [
             models.UniqueConstraint(
-                fields=['seller', 'date'], 
+                fields=['seller', 'date'],
                 name='unique_sale_per_seller_per_day'
             )
         ]
 
     def clean(self):
-        # Se o seller ainda não foi definido, pula a verificação
+        # Impede vendas duplicadas no mesmo dia por vendedor
         if not self.seller_id or not self.date:
             return
 

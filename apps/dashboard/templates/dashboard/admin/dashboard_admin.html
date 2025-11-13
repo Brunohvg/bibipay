@@ -7,6 +7,106 @@
 
 {% block extra_css %}
 <style>
+  /* Filtros de Data */
+  .filters-bar {
+    background: white;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .filter-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+    white-space: nowrap;
+  }
+
+  .filter-buttons {
+    display: flex;
+    gap: 6px;
+    background: var(--gray-100);
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    color: var(--gray-600);
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover {
+    background: var(--gray-200);
+    color: var(--gray-900);
+  }
+
+  .filter-btn.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+
+  .custom-date-inputs {
+    display: none;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .custom-date-inputs.show {
+    display: flex;
+  }
+
+  .date-input {
+    padding: 8px 12px;
+    border: 2px solid var(--gray-200);
+    border-radius: 6px;
+    font-size: 12px;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .date-input:focus {
+    border-color: var(--primary);
+  }
+
+  .apply-filter-btn {
+    padding: 8px 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .apply-filter-btn:hover {
+    background: var(--primary-dark);
+  }
+
+  /* Stats Grid */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -21,12 +121,30 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: all 0.3s ease;
     border: 1px solid var(--gray-200);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     border-color: var(--primary);
+  }
+
+  .stat-card:hover::before {
+    opacity: 1;
   }
 
   .stat-card-header {
@@ -66,6 +184,11 @@
     color: var(--info);
   }
 
+  .stat-card-icon.danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+  }
+
   .stat-card-trend {
     display: inline-flex;
     align-items: center;
@@ -88,6 +211,11 @@
     color: var(--danger);
   }
 
+  .stat-card-trend.neutral {
+    background: rgba(107, 114, 128, 0.1);
+    color: var(--gray-600);
+  }
+
   .stat-card-value {
     font-size: 32px;
     font-weight: 800;
@@ -108,8 +236,28 @@
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
+  .stat-card-comparison {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 4px;
+  }
+
+  .stat-card-comparison .positive {
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  .stat-card-comparison .negative {
+    color: var(--danger);
+    font-weight: 600;
+  }
+
+  /* Cards */
   .card {
     background: white;
     border-radius: 12px;
@@ -141,6 +289,15 @@
     padding: 24px;
   }
 
+  /* Grid Layout para Cards */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  /* Tabela */
   .table-responsive {
     overflow-x: auto;
   }
@@ -169,6 +326,10 @@
     border-top: 1px solid var(--gray-100);
     font-size: 13px;
     color: var(--gray-700);
+  }
+
+  tbody tr {
+    transition: background 0.2s ease;
   }
 
   tbody tr:hover {
@@ -201,6 +362,11 @@
   .badge-danger {
     background: rgba(239, 68, 68, 0.1);
     color: var(--danger);
+  }
+
+  .badge-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info);
   }
 
   .seller-row {
@@ -237,6 +403,9 @@
   .seller-email {
     font-size: 12px;
     color: var(--gray-500);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .quick-actions {
@@ -263,6 +432,7 @@
 
   .action-link.view:hover {
     background: var(--primary-dark);
+    transform: translateY(-1px);
   }
 
   .action-link.edit {
@@ -272,36 +442,46 @@
 
   .action-link.edit:hover {
     background: var(--gray-200);
+    transform: translateY(-1px);
   }
 
   .empty-state {
     text-align: center;
-    padding: 40px 20px;
+    padding: 60px 20px;
     color: var(--gray-500);
   }
 
   .empty-state i {
-    font-size: 48px;
-    color: var(--gray-200);
-    margin-bottom: 12px;
+    font-size: 64px;
+    color: var(--gray-300);
+    margin-bottom: 16px;
+    opacity: 0.5;
   }
 
   .empty-state p {
     font-size: 14px;
+    font-weight: 500;
   }
 
+  /* Métricas */
   .metrics-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
-    margin-top: 16px;
   }
 
   .metric {
     background: var(--gray-50);
-    padding: 12px 16px;
+    padding: 16px 18px;
     border-radius: 8px;
     border: 1px solid var(--gray-200);
+    transition: all 0.2s ease;
+  }
+
+  .metric:hover {
+    border-color: var(--primary);
+    background: white;
+    transform: translateY(-2px);
   }
 
   .metric-label {
@@ -310,15 +490,34 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .metric-value {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 800;
     color: var(--gray-900);
+    line-height: 1.2;
   }
 
+  .metric-change {
+    font-size: 11px;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  .metric-change.positive {
+    color: var(--success);
+  }
+
+  .metric-change.negative {
+    color: var(--danger);
+  }
+
+  /* Botões */
   .header-actions {
     display: flex;
     gap: 8px;
@@ -345,6 +544,7 @@
 
   .btn-primary:hover {
     background: var(--primary-dark);
+    transform: translateY(-1px);
   }
 
   .btn-secondary {
@@ -354,9 +554,145 @@
 
   .btn-secondary:hover {
     background: var(--gray-200);
+    transform: translateY(-1px);
+  }
+
+  /* Ranking Badges */
+  .ranking-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    margin-right: 8px;
+  }
+
+  .ranking-badge.gold {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: white;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  }
+
+  .ranking-badge.silver {
+    background: linear-gradient(135deg, #C0C0C0, #808080);
+    color: white;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
+  }
+
+  .ranking-badge.bronze {
+    background: linear-gradient(135deg, #CD7F32, #8B4513);
+    color: white;
+    box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4);
+  }
+
+  .ranking-badge.default {
+    background: var(--gray-200);
+    color: var(--gray-700);
+  }
+
+  /* Progress Bar */
+  .progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 10px;
+    transition: width 1s ease;
+  }
+
+  /* Lista de Atividades Recentes */
+  .activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .activity-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .activity-icon.sale {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+  }
+
+  .activity-icon.commission {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+  }
+
+  .activity-icon.seller {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info);
+  }
+
+  .activity-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .activity-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 2px;
+  }
+
+  .activity-time {
+    font-size: 11px;
+    color: var(--gray-500);
+  }
+
+  /* Responsive */
+  @media (max-width: 1200px) {
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 768px) {
+    .filters-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-group {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-buttons {
+      flex-wrap: wrap;
+    }
+
     .stats-grid {
       grid-template-columns: 1fr;
     }
@@ -387,6 +723,28 @@
     .metrics-row {
       grid-template-columns: 1fr;
     }
+
+    .stat-card-value {
+      font-size: 28px;
+    }
+
+    table {
+      font-size: 12px;
+    }
+
+    th, td {
+      padding: 10px 8px;
+    }
+
+    .seller-row {
+      gap: 8px;
+    }
+
+    .seller-avatar {
+      width: 32px;
+      height: 32px;
+      font-size: 11px;
+    }
   }
 </style>
 {% endblock %}
@@ -394,15 +752,54 @@
 
 {% block content %}
 
+<!-- Filtros de Data -->
+<div class="filters-bar">
+  <div class="filter-group">
+    <span class="filter-label"><i class="fas fa-calendar-alt"></i> Período:</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-period="today">Hoje</button>
+      <button class="filter-btn" data-period="week">Semana</button>
+      <button class="filter-btn" data-period="month">Mês</button>
+      <button class="filter-btn" data-period="year">Ano</button>
+      <button class="filter-btn" data-period="custom">Personalizado</button>
+    </div>
+  </div>
+  
+  <div class="custom-date-inputs" id="customDateInputs">
+    <input type="date" class="date-input" id="startDate" placeholder="Data Inicial">
+    <span style="color: var(--gray-500);">até</span>
+    <input type="date" class="date-input" id="endDate" placeholder="Data Final">
+    <button class="apply-filter-btn" onclick="applyCustomFilter()">
+      <i class="fas fa-check"></i> Aplicar
+    </button>
+  </div>
+
+  <div style="margin-left: auto; display: flex; gap: 8px;">
+    <button class="btn-action btn-secondary" onclick="exportData()">
+      <i class="fas fa-download"></i> Exportar
+    </button>
+    <button class="btn-action btn-primary" onclick="window.print()">
+      <i class="fas fa-print"></i> Imprimir
+    </button>
+  </div>
+</div>
+
+<!-- Cards de Estatísticas Principais -->
 <div class="stats-grid">
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon primary"><i class="fas fa-dollar-sign"></i></div>
       <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 12.5%</div>
     </div>
-    <div class="stat-card-value">R$ {{ total_vendas|floatformat:2|intcomma|default:"0,00" }}</div>
+    <div class="stat-card-value">R$ {{ total_vendas|floatformat:2|intcomma }}</div>
     <div class="stat-card-label">Vendas Totais</div>
-    <div class="stat-card-detail"><i class="fas fa-info-circle"></i> Valor total registrado no sistema.</div>
+    <div class="stat-card-detail">
+      <i class="fas fa-info-circle"></i> 
+      Valor total registrado no período
+    </div>
+    <div class="stat-card-comparison">
+      vs período anterior: <span class="positive">+R$ 2.450,00</span>
+    </div>
   </div>
 
   <div class="stat-card">
@@ -410,9 +807,15 @@
       <div class="stat-card-icon success"><i class="fas fa-percentage"></i></div>
       <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 8.2%</div>
     </div>
-    <div class="stat-card-value">R$ {{ total_comissao|floatformat:2|intcomma|default:"0,00" }}</div>
+    <div class="stat-card-value">R$ {{ total_comissao|floatformat:2|intcomma }}</div>
     <div class="stat-card-label">Comissões a Pagar</div>
-    <div class="stat-card-detail"><i class="fas fa-clock"></i> Total pendente de pagamento</div>
+    <div class="stat-card-detail">
+      <i class="fas fa-clock"></i> 
+      Total pendente de pagamento
+    </div>
+    <div class="stat-card-comparison">
+      Média por vendedor: <span class="positive">R$ 450,00</span>
+    </div>
   </div>
 
   <div class="stat-card">
@@ -420,97 +823,434 @@
       <div class="stat-card-icon info"><i class="fas fa-users"></i></div>
       <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 5.1%</div>
     </div>
-    <div class="stat-card-value">{{ sellers|length|default:"0" }}</div>
+    <div class="stat-card-value">{{ sellers|length }}</div>
     <div class="stat-card-label">Vendedores Ativos</div>
-    <div class="stat-card-detail"><i class="fas fa-check-circle"></i> de {{ total_sellers|default:"0" }} vendedores cadastrados</div>
+    <div class="stat-card-detail">
+      <i class="fas fa-check-circle"></i> 
+      de {{ total_sellers }} vendedores cadastrados
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" style="width: {% widthratio sellers|length total_sellers 100 %}%;"></div>
+    </div>
   </div>
 
   <div class="stat-card">
     <div class="stat-card-header">
-      <div class="stat-card-icon warning"><i class="fas fa-chart-pie"></i></div>
-      <div class="stat-card-trend down"><i class="fas fa-arrow-down"></i> 2.1%</div>
+      <div class="stat-card-icon warning"><i class="fas fa-chart-line"></i></div>
+      <div class="stat-card-trend neutral"><i class="fas fa-minus"></i> 0.0%</div>
     </div>
-    <div class="stat-card-value">{{ conversion_rate|default:"0" }}%</div>
+    <div class="stat-card-value">{{ conversion_rate }}%</div>
     <div class="stat-card-label">Taxa de Conversão</div>
-    <div class="stat-card-detail"><i class="fas fa-info-circle"></i> Performance geral</div>
+    <div class="stat-card-detail">
+      <i class="fas fa-info-circle"></i> 
+      Performance geral do período
+    </div>
+    <div class="stat-card-comparison">
+      Meta: <span style="color: var(--gray-600);">85%</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div class="stat-card-icon danger"><i class="fas fa-receipt"></i></div>
+      <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 3.8%</div>
+    </div>
+    <div class="stat-card-value">R$ {{ avg_ticket }}</div>
+    <div class="stat-card-label">Ticket Médio</div>
+    <div class="stat-card-detail">
+      <i class="fas fa-calculator"></i> 
+      Valor médio por venda
+    </div>
+    <div class="stat-card-comparison">
+      Maior venda: <span class="positive">R$ {{ top_sale_value }}</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div class="stat-card-icon info"><i class="fas fa-shopping-cart"></i></div>
+      <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 15.2%</div>
+    </div>
+    <div class="stat-card-value">0</div>
+    <div class="stat-card-label">Total de Vendas</div>
+    <div class="stat-card-detail">
+      <i class="fas fa-hashtag"></i> 
+      Quantidade de transações
+    </div>
+    <div class="stat-card-comparison">
+      Média diária: <span class="positive">0</span>
+    </div>
   </div>
 </div>
 
+<!-- Grid de Cards -->
+<div class="cards-grid">
+  <!-- Top Vendedores -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="fas fa-trophy" style="color: var(--warning);"></i>
+        Top 5 Vendedores
+      </h3>
+      <div class="header-actions">
+        <a href="{% url 'accounts:sellers_list' %}" class="btn-action btn-secondary">
+          <i class="fas fa-list"></i> Ver Todos
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      {% if sellers %}
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Vendedor</th>
+              <th>Vendas</th>
+              <th>Total</th>
+              <th>Comissão</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for seller in sellers|slice:":5" %}
+            <tr>
+              <td>
+                {% if forloop.counter == 1 %}
+                  <span class="ranking-badge gold">{{ forloop.counter }}</span>
+                {% elif forloop.counter == 2 %}
+                  <span class="ranking-badge silver">{{ forloop.counter }}</span>
+                {% elif forloop.counter == 3 %}
+                  <span class="ranking-badge bronze">{{ forloop.counter }}</span>
+                {% else %}
+                  <span class="ranking-badge default">{{ forloop.counter }}</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="seller-row">
+                  <div class="seller-avatar">{{ seller.first_name.0|upper }}{{ seller.last_name.0|upper }}</div>
+                  <div class="seller-info">
+                    <div class="seller-name">{{ seller.first_name }} {{ seller.last_name }}</div>
+                    <div class="seller-email">{{ seller.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <strong style="color: var(--gray-900);">{{ seller.sales_count }}</strong>
+              </td>
+              <td>
+                <strong style="color: var(--primary); font-size: 14px;">
+                  R$ {{ seller.sales_total|floatformat:2|intcomma }}
+                </strong>
+              </td>
+              <td>
+                <strong style="color: var(--success); font-size: 14px;">
+                  R$ {{ seller.commission_total|floatformat:2|intcomma }}
+                </strong>
+              </td>
+              <td>
+                <div class="quick-actions">
+                  <a href="{% url 'accounts:sellers_detail' seller.id %}" 
+                     class="action-link view" 
+                     title="Visualizar">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <a href="{% url 'accounts:sellers_update' seller.id %}" 
+                     class="action-link edit" 
+                     title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>Nenhum vendedor ativo encontrado.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Atividades Recentes -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="fas fa-clock" style="color: var(--info);"></i>
+        Atividades Recentes
+      </h3>
+      <div class="header-actions">
+        <a href="#" class="btn-action btn-secondary">
+          <i class="fas fa-history"></i> Ver Todas
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <ul class="activity-list">
+        <li class="activity-item">
+          <div class="activity-icon sale">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Nova venda registrada</div>
+            <div class="activity-time">Há 5 minutos • R$ 1.250,00</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-icon commission">
+            <i class="fas fa-percentage"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Comissão processada</div>
+            <div class="activity-time">Há 15 minutos • R$ 125,00</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-icon seller">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Novo vendedor cadastrado</div>
+            <div class="activity-time">Há 1 hora • João Silva</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-icon sale">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Venda confirmada</div>
+            <div class="activity-time">Há 2 horas • R$ 850,00</div>
+          </div>
+        </li>
+        <li class="activity-item">
+          <div class="activity-icon commission">
+            <i class="fas fa-money-bill-wave"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Comissão paga</div>
+            <div class="activity-time">Há 3 horas • R$ 320,00</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Métricas de Performance -->
 <div class="card">
   <div class="card-header">
     <h3 class="card-title">
-      <i class="fas fa-trophy" style="color: var(--warning);"></i>
-      Top 5 Vendedores Ativos
+      <i class="fas fa-chart-bar" style="color: var(--info);"></i> 
+      Métricas de Performance
     </h3>
-    <div class="header-actions">
-      <a href="{% url 'accounts:sellers_list' %}" class="btn-action btn-secondary"><i class="fas fa-list"></i> Ver Todos</a>
-      <a href="#" class="btn-action btn-primary"><i class="fas fa-chart-line"></i> Relatório</a>
-    </div>
-  </div>
-  <div class="card-body">
-    {% if sellers %}
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>Vendedor</th>
-            <th>Vendas</th>
-            <th>Total de Vendas</th>
-            <th>Comissão</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for seller in sellers|slice:":5" %}
-          <tr>
-            <td>
-              <div class="seller-row">
-                <div class="seller-avatar">{{ seller.first_name.0|upper }}{{ seller.last_name.0|upper }}</div>
-                <div class="seller-info">
-                  <div class="seller-name">{{ seller.get_full_name }}</div>
-                  <div class="seller-email">{{ seller.email }}</div>
-                </div>
-              </div>
-            </td>
-            <td><strong>0</strong> vendas</td>
-            <td><strong style="color: var(--primary); font-size: 14px;">R$ 0,00</strong></td>
-            <td><strong style="color: var(--success); font-size: 14px;">R$ 0,00</strong></td>
-            <td>
-              <span class="badge badge-success"><i class="fas fa-check-circle"></i> Ativo</span>
-            </td>
-            <td>
-              <div class="quick-actions">
-                <a href="{% url 'accounts:sellers_detail' seller.id %}" class="action-link view" title="Visualizar"><i class="fas fa-eye"></i></a>
-                <a href="{% url 'accounts:sellers_update' seller.id %}" class="action-link edit" title="Editar"><i class="fas fa-edit"></i></a>
-              </div>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty-state">
-      <i class="fas fa-inbox"></i>
-      <p>Nenhum vendedor ativo encontrado.</p>
-    </div>
-    {% endif %}
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-header">
-    <h3 class="card-title"><i class="fas fa-chart-bar" style="color: var(--info);"></i> Métricas de Performance</h3>
   </div>
   <div class="card-body">
     <div class="metrics-row">
-      <div class="metric"><div class="metric-label">Ticket Médio</div><div class="metric-value">R$ 0,00</div></div>
-      <div class="metric"><div class="metric-label">Vendas Hoje</div><div class="metric-value">0</div></div>
-      <div class="metric"><div class="metric-label">Comissões Hoje</div><div class="metric-value">R$ 0,00</div></div>
-      <div class="metric"><div class="metric-label">Vendedor + Ativo</div><div class="metric-value">—</div></div>
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-receipt"></i> Ticket Médio
+        </div>
+        <div class="metric-value">R$ {{ avg_ticket }}</div>
+        <div class="metric-change positive">
+          <i class="fas fa-arrow-up"></i> +3.8% vs período anterior
+        </div>
+      </div>
+      
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-trophy"></i> Maior Venda
+        </div>
+        <div class="metric-value">R$ {{ top_sale_value }}</div>
+        <div class="metric-change positive">
+          <i class="fas fa-star"></i> Melhor resultado
+        </div>
+      </div>
+      
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-user-tie"></i> Vendedor Destaque
+        </div>
+        <div class="metric-value" style="font-size: 15px; font-weight: 700;">
+          {{ top_seller_name }}
+        </div>
+        <div class="metric-change positive">
+          <i class="fas fa-fire"></i> Melhor performance
+        </div>
+      </div>
+      
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-users"></i> Total Vendedores
+        </div>
+        <div class="metric-value">{{ total_sellers }}</div>
+        <div class="metric-change positive">
+          <i class="fas fa-arrow-up"></i> +5.1% vs mês anterior
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-calendar-day"></i> Vendas Hoje
+        </div>
+        <div class="metric-value">0</div>
+        <div class="metric-change positive">
+          <i class="fas fa-clock"></i> Atualizado agora
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-percentage"></i> Comissões Hoje
+        </div>
+        <div class="metric-value">R$ 0,00</div>
+        <div class="metric-change positive">
+          <i class="fas fa-money-bill-wave"></i> Processando
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Status e Alertas -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> 
+      Status e Alertas
+    </h3>
+  </div>
+  <div class="card-body">
+    <div class="metrics-row">
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-clock"></i> Comissões Pendentes
+        </div>
+        <div class="metric-value">0</div>
+        <span class="badge badge-warning">
+          <i class="fas fa-hourglass-half"></i> Aguardando
+        </span>
+      </div>
+      
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-check-circle"></i> Comissões Pagas
+        </div>
+        <div class="metric-value">0</div>
+        <span class="badge badge-success">
+          <i class="fas fa-check"></i> Concluído
+        </span>
+      </div>
+      
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-user-slash"></i> Vendedores Inativos
+        </div>
+        <div class="metric-value">{{ total_sellers|add:sellers|length|stringformat:"d"|add:"-"|add:sellers|length }}</div>
+        <span class="badge badge-danger">
+          <i class="fas fa-pause"></i> Sem atividade
+        </span>
+      </div>
+      
+      <div class="metric">
+        <div class="metric-label">
+          <i class="fas fa-chart-line"></i> Meta do Mês
+        </div>
+        <div class="metric-value">65%</div>
+        <span class="badge badge-info">
+          <i class="fas fa-target"></i> Em progresso
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Filtros de Data
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Remove active de todos
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      
+      // Adiciona active no clicado
+      this.classList.add('active');
+      
+      // Mostra/esconde inputs personalizados
+      const customInputs = document.getElementById('customDateInputs');
+      if (this.dataset.period === 'custom') {
+        customInputs.classList.add('show');
+      } else {
+        customInputs.classList.remove('show');
+        // Aqui você pode fazer a requisição AJAX para filtrar os dados
+        applyFilter(this.dataset.period);
+      }
+    });
+  });
+
+  function applyFilter(period) {
+    // Aqui você implementaria a lógica de filtro
+    console.log('Filtro aplicado:', period);
+    
+    // Exemplo de requisição AJAX (comentado)
+    // fetch(`/dashboard/filter/?period=${period}`)
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     // Atualizar os dados do dashboard
+    //   });
+    
+    // Por enquanto, apenas recarrega a página com o parâmetro
+    // window.location.href = `?period=${period}`;
+  }
+
+  function applyCustomFilter() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    if (!startDate || !endDate) {
+      alert('Por favor, selecione as duas datas.');
+      return;
+    }
+    
+    if (startDate > endDate) {
+      alert('A data inicial não pode ser maior que a data final.');
+      return;
+    }
+    
+    console.log('Filtro personalizado:', startDate, 'até', endDate);
+    
+    // Implementar lógica de filtro personalizado
+    // window.location.href = `?start=${startDate}&end=${endDate}`;
+  }
+
+  function exportData() {
+    // Implementar lógica de exportação
+    alert('Funcionalidade de exportação em desenvolvimento');
+    // window.location.href = '/dashboard/export/';
+  }
+
+  // Animação das progress bars
+  document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+      const width = bar.style.width;
+      bar.style.width = '0';
+      setTimeout(() => {
+        bar.style.width = width;
+      }, 100);
+    });
+  });
+
+  // Auto-refresh de dados (opcional)
+  // setInterval(() => {
+  //   // Atualizar dados do dashboard via AJAX
+  //   console.log('Atualizando dados...');
+  // }, 60000); // A cada 1 minuto
+</script>
 {% endblock %}
