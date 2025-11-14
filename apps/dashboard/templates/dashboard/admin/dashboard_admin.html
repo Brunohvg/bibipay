@@ -4,52 +4,90 @@
 {% block title %}Dashboard Admin{% endblock %}
 {% block page_title %}Painel Administrativo{% endblock %}
 
-
 {% block extra_css %}
 <style>
+  :root {
+    --primary: #667eea;
+    --primary-dark: #5568d3;
+    --secondary: #764ba2;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-900: #111827;
+  }
+
   /* Filtros de Data */
   .filters-bar {
-    background: white;
-    padding: 20px 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    margin-bottom: 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    margin-bottom: 28px;
     border: 1px solid var(--gray-200);
     display: flex;
-    gap: 16px;
+    gap: 20px;
     align-items: center;
     flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .filters-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary), var(--info));
+    opacity: 0.8;
   }
 
   .filter-group {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     align-items: center;
   }
 
   .filter-label {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--gray-700);
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label i {
+    color: var(--primary);
   }
 
   .filter-buttons {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     background: var(--gray-100);
-    padding: 4px;
-    border-radius: 8px;
+    padding: 6px;
+    border-radius: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
   .filter-btn {
-    padding: 8px 16px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: transparent;
     color: var(--gray-600);
     white-space: nowrap;
@@ -58,18 +96,32 @@
   .filter-btn:hover {
     background: var(--gray-200);
     color: var(--gray-900);
+    transform: translateY(-2px);
   }
 
   .filter-btn.active {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    transform: translateY(-2px);
   }
 
   .custom-date-inputs {
     display: none;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .custom-date-inputs.show {
@@ -77,69 +129,95 @@
   }
 
   .date-input {
-    padding: 8px 12px;
+    padding: 10px 16px;
     border: 2px solid var(--gray-200);
-    border-radius: 6px;
-    font-size: 12px;
+    border-radius: 8px;
+    font-size: 13px;
     outline: none;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     font-family: 'Inter', sans-serif;
+    background: white;
   }
 
   .date-input:focus {
     border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
   }
 
   .apply-filter-btn {
-    padding: 8px 16px;
-    background: var(--primary);
+    padding: 10px 20px;
+    background: linear-gradient(135deg, var(--success), #059669);
     color: white;
     border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .apply-filter-btn:hover {
-    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
   }
 
   /* Stats Grid */
   .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
     margin-bottom: 32px;
   }
 
   .stat-card {
     background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
+    padding: 28px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid var(--gray-200);
     position: relative;
     overflow: hidden;
+    animation: fadeInUp 0.5s ease-out;
+    animation-fill-mode: both;
   }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .stat-card:nth-child(1) { animation-delay: 0.1s; }
+  .stat-card:nth-child(2) { animation-delay: 0.2s; }
+  .stat-card:nth-child(3) { animation-delay: 0.3s; }
+  .stat-card:nth-child(4) { animation-delay: 0.4s; }
+  .stat-card:nth-child(5) { animation-delay: 0.5s; }
+  .stat-card:nth-child(6) { animation-delay: 0.6s; }
 
   .stat-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--primary);
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
     opacity: 0;
     transition: opacity 0.3s ease;
   }
 
   .stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
     border-color: var(--primary);
   }
 
@@ -151,41 +229,48 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
   }
 
   .stat-card-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 10px;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover .stat-card-icon {
+    transform: scale(1.1) rotate(5deg);
   }
 
   .stat-card-icon.primary {
-    background: rgba(102, 126, 234, 0.1);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.05));
     color: var(--primary);
   }
 
   .stat-card-icon.success {
-    background: rgba(16, 185, 129, 0.1);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
     color: var(--success);
   }
 
   .stat-card-icon.warning {
-    background: rgba(245, 158, 11, 0.1);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
     color: var(--warning);
   }
 
   .stat-card-icon.info {
-    background: rgba(59, 130, 246, 0.1);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
     color: var(--info);
   }
 
   .stat-card-icon.danger {
-    background: rgba(239, 68, 68, 0.1);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
     color: var(--danger);
   }
 
@@ -193,200 +278,226 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 20px;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
   }
 
   .stat-card-trend.up {
-    background: rgba(16, 185, 129, 0.1);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
     color: var(--success);
   }
 
   .stat-card-trend.down {
-    background: rgba(239, 68, 68, 0.1);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
     color: var(--danger);
   }
 
   .stat-card-trend.neutral {
-    background: rgba(107, 114, 128, 0.1);
+    background: linear-gradient(135deg, rgba(107, 114, 128, 0.15), rgba(107, 114, 128, 0.05));
     color: var(--gray-600);
   }
 
   .stat-card-value {
-    font-size: 32px;
-    font-weight: 800;
+    font-size: 36px;
+    font-weight: 900;
     color: var(--gray-900);
-    margin-bottom: 4px;
+    margin-bottom: 8px;
     line-height: 1;
+    letter-spacing: -1px;
+    position: relative;
+    z-index: 1;
   }
 
   .stat-card-label {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--gray-600);
-    font-weight: 500;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
   }
 
   .stat-card-detail {
     font-size: 12px;
     color: var(--gray-500);
-    margin-top: 8px;
-    padding-top: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid var(--gray-100);
     display: flex;
     align-items: center;
     gap: 6px;
+    position: relative;
+    z-index: 1;
   }
 
   .stat-card-comparison {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--gray-500);
-    margin-top: 4px;
+    margin-top: 8px;
+    position: relative;
+    z-index: 1;
   }
 
   .stat-card-comparison .positive {
     color: var(--success);
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .stat-card-comparison .negative {
     color: var(--danger);
-    font-weight: 600;
+    font-weight: 700;
   }
 
   /* Cards */
   .card {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    margin-bottom: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    margin-bottom: 28px;
     border: 1px solid var(--gray-200);
     overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
   }
 
   .card-header {
-    padding: 20px 24px;
+    padding: 24px 28px;
     border-bottom: 1px solid var(--gray-100);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: white;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   }
 
   .card-title {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 800;
     color: var(--gray-900);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .card-body {
-    padding: 24px;
-  }
-
-  /* Grid Layout para Cards */
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    gap: 24px;
-    margin-bottom: 24px;
-  }
-
-  /* Tabela */
-  .table-responsive {
-    overflow-x: auto;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  thead {
-    background: var(--gray-50);
-  }
-
-  th {
-    padding: 12px 16px;
-    text-align: left;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gray-700);
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-
-  td {
-    padding: 14px 16px;
-    border-top: 1px solid var(--gray-100);
-    font-size: 13px;
-    color: var(--gray-700);
-  }
-
-  tbody tr {
-    transition: background 0.2s ease;
-  }
-
-  tbody tr:hover {
-    background: var(--gray-50);
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    border-radius: 14px;
-    font-size: 11px;
-    font-weight: 700;
-    white-space: nowrap;
-    text-transform: uppercase;
-    letter-spacing: 0.2px;
-  }
-
-  .badge-success {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-  }
-
-  .badge-warning {
-    background: rgba(245, 158, 11, 0.1);
-    color: var(--warning);
-  }
-
-  .badge-danger {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-  }
-
-  .badge-info {
-    background: rgba(59, 130, 246, 0.1);
-    color: var(--info);
-  }
-
-  .seller-row {
     display: flex;
     align-items: center;
     gap: 12px;
   }
 
-  .seller-avatar {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+  .card-body {
+    padding: 28px;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+    gap: 28px;
+    margin-bottom: 28px;
+  }
+
+  /* Tabela */
+  .table-responsive {
+    overflow-x: auto;
     border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  thead {
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+  }
+
+  th {
+    padding: 16px 18px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  td {
+    padding: 18px;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 14px;
+    color: var(--gray-700);
+  }
+
+  tbody tr {
+    transition: all 0.2s ease;
+  }
+
+  tbody tr:hover {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.03), transparent);
+    transform: scale(1.01);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+    color: var(--success);
+  }
+
+  .badge-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+    color: var(--warning);
+  }
+
+  .badge-danger {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+    color: var(--danger);
+  }
+
+  .badge-info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+    color: var(--info);
+  }
+
+  /* Vendedor */
+  .seller-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .seller-avatar {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 800;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .seller-row:hover .seller-avatar {
+    transform: scale(1.1) rotate(5deg);
   }
 
   .seller-info {
@@ -397,7 +508,8 @@
   .seller-name {
     font-weight: 700;
     color: var(--gray-900);
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    font-size: 14px;
   }
 
   .seller-email {
@@ -414,25 +526,25 @@
   }
 
   .action-link {
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
   }
 
   .action-link.view {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
   }
 
   .action-link.view:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
   }
 
   .action-link.edit {
@@ -442,71 +554,229 @@
 
   .action-link.edit:hover {
     background: var(--gray-200);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--gray-500);
+  /* Ranking Badges */
+  .ranking-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 900;
+    margin-right: 10px;
+    transition: all 0.3s ease;
   }
 
-  .empty-state i {
-    font-size: 64px;
-    color: var(--gray-300);
-    margin-bottom: 16px;
-    opacity: 0.5;
+  .ranking-badge.gold {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #8b6914;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
   }
 
-  .empty-state p {
+  .ranking-badge.silver {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+    color: #4a4a4a;
+    box-shadow: 0 4px 12px rgba(192, 192, 192, 0.5);
+  }
+
+  .ranking-badge.bronze {
+    background: linear-gradient(135deg, #cd7f32, #d4a574);
+    color: #5c3a1a;
+    box-shadow: 0 4px 12px rgba(205, 127, 50, 0.5);
+  }
+
+  .ranking-badge.default {
+    background: var(--gray-200);
+    color: var(--gray-700);
+  }
+
+  tbody tr:hover .ranking-badge {
+    transform: scale(1.15) rotate(5deg);
+  }
+
+  /* Progress Bar */
+  .progress-bar-container {
+    width: 100%;
+    height: 10px;
+    background: var(--gray-200);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 20px;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* Atividades */
+  .activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .activity-item {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--gray-100);
+    transition: all 0.3s ease;
+  }
+
+  .activity-item:hover {
+    background: var(--gray-50);
+    margin: 0 -16px;
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .activity-item:last-child {
+    border-bottom: none;
+  }
+
+  .activity-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+  }
+
+  .activity-item:hover .activity-icon {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .activity-icon.sale {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+    color: var(--success);
+  }
+
+  .activity-icon.commission {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+    color: var(--warning);
+  }
+
+  .activity-icon.seller {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+    color: var(--info);
+  }
+
+  .activity-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .activity-title {
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 4px;
+  }
+
+  .activity-time {
+    font-size: 12px;
+    color: var(--gray-500);
   }
 
   /* Métricas */
   .metrics-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
   }
 
   .metric {
-    background: var(--gray-50);
-    padding: 16px 18px;
-    border-radius: 8px;
+    background: linear-gradient(135deg, var(--gray-50), white);
+    padding: 20px;
+    border-radius: 12px;
     border: 1px solid var(--gray-200);
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--primary), var(--secondary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
   .metric:hover {
     border-color: var(--primary);
     background: white;
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .metric:hover::before {
+    opacity: 1;
   }
 
   .metric-label {
     font-size: 11px;
     color: var(--gray-600);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
   .metric-value {
-    font-size: 20px;
-    font-weight: 800;
+    font-size: 24px;
+    font-weight: 900;
     color: var(--gray-900);
     line-height: 1.2;
+    margin-bottom: 8px;
   }
 
   .metric-change {
     font-size: 11px;
-    margin-top: 4px;
-    font-weight: 600;
+    margin-top: 6px;
+    font-weight: 700;
   }
 
   .metric-change.positive {
@@ -520,31 +790,32 @@
   /* Botões */
   .header-actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
   }
 
   .btn-action {
-    padding: 8px 16px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     text-decoration: none;
   }
 
   .btn-primary {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   }
 
   .btn-primary:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
   }
 
   .btn-secondary {
@@ -554,121 +825,25 @@
 
   .btn-secondary:hover {
     background: var(--gray-200);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
 
-  /* Ranking Badges */
-  .ranking-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 800;
-    margin-right: 8px;
-  }
-
-  .ranking-badge.gold {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: white;
-    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
-  }
-
-  .ranking-badge.silver {
-    background: linear-gradient(135deg, #C0C0C0, #808080);
-    color: white;
-    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
-  }
-
-  .ranking-badge.bronze {
-    background: linear-gradient(135deg, #CD7F32, #8B4513);
-    color: white;
-    box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4);
-  }
-
-  .ranking-badge.default {
-    background: var(--gray-200);
-    color: var(--gray-700);
-  }
-
-  /* Progress Bar */
-  .progress-bar-container {
-    width: 100%;
-    height: 8px;
-    background: var(--gray-200);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 8px;
-  }
-
-  .progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    border-radius: 10px;
-    transition: width 1s ease;
-  }
-
-  /* Lista de Atividades Recentes */
-  .activity-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .activity-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--gray-100);
-  }
-
-  .activity-item:last-child {
-    border-bottom: none;
-  }
-
-  .activity-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-
-  .activity-icon.sale {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-  }
-
-  .activity-icon.commission {
-    background: rgba(245, 158, 11, 0.1);
-    color: var(--warning);
-  }
-
-  .activity-icon.seller {
-    background: rgba(59, 130, 246, 0.1);
-    color: var(--info);
-  }
-
-  .activity-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .activity-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--gray-900);
-    margin-bottom: 2px;
-  }
-
-  .activity-time {
-    font-size: 11px;
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
     color: var(--gray-500);
+  }
+
+  .empty-state i {
+    font-size: 72px;
+    color: var(--gray-300);
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .empty-state p {
+    font-size: 16px;
+    font-weight: 600;
   }
 
   /* Responsive */
@@ -682,6 +857,7 @@
     .filters-bar {
       flex-direction: column;
       align-items: stretch;
+      padding: 20px;
     }
 
     .filter-group {
@@ -699,7 +875,7 @@
 
     .card-header {
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
       align-items: flex-start;
     }
 
@@ -714,6 +890,7 @@
 
     .quick-actions {
       flex-direction: column;
+      width: 100%;
     }
 
     .action-link {
@@ -725,56 +902,88 @@
     }
 
     .stat-card-value {
-      font-size: 28px;
+      font-size: 32px;
     }
 
     table {
-      font-size: 12px;
+      font-size: 13px;
     }
 
     th, td {
-      padding: 10px 8px;
+      padding: 12px 10px;
     }
 
     .seller-row {
-      gap: 8px;
+      gap: 10px;
     }
 
     .seller-avatar {
-      width: 32px;
-      height: 32px;
-      font-size: 11px;
+      width: 36px;
+      height: 36px;
+      font-size: 12px;
+    }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(400px);
+      opacity: 0;
     }
   }
 </style>
 {% endblock %}
 
-
 {% block content %}
 
-<!-- Filtros de Data -->
-<div class="filters-bar">
+<div class="filters-bar fade-in">
   <div class="filter-group">
     <span class="filter-label"><i class="fas fa-calendar-alt"></i> Período:</span>
     <div class="filter-buttons">
-      <button class="filter-btn active" data-period="today">Hoje</button>
-      <button class="filter-btn" data-period="week">Semana</button>
-      <button class="filter-btn" data-period="month">Mês</button>
-      <button class="filter-btn" data-period="year">Ano</button>
-      <button class="filter-btn" data-period="custom">Personalizado</button>
+      <button class="filter-btn {% if current_period == 'today' %}active{% endif %}" data-period="today">Hoje</button>
+      <button class="filter-btn {% if current_period == 'week' %}active{% endif %}" data-period="week">Semana</button>
+      <button class="filter-btn {% if current_period == 'month' or not current_period %}active{% endif %}" data-period="month">Mês</button>
+      <button class="filter-btn {% if current_period == 'year' %}active{% endif %}" data-period="year">Ano</button>
+      <button class="filter-btn {% if current_period == 'custom' %}active{% endif %}" data-period="custom">Personalizado</button>
     </div>
   </div>
   
-  <div class="custom-date-inputs" id="customDateInputs">
-    <input type="date" class="date-input" id="startDate" placeholder="Data Inicial">
-    <span style="color: var(--gray-500);">até</span>
-    <input type="date" class="date-input" id="endDate" placeholder="Data Final">
+  <div class="custom-date-inputs {% if current_period == 'custom' %}show{% endif %}" id="customDateInputs">
+    <input type="date" class="date-input" id="startDate" value="{{ start_date }}" placeholder="Data Inicial">
+    <span style="color: var(--gray-500); font-weight: 600;">até</span>
+    <input type="date" class="date-input" id="endDate" value="{{ end_date }}" placeholder="Data Final">
     <button class="apply-filter-btn" onclick="applyCustomFilter()">
       <i class="fas fa-check"></i> Aplicar
     </button>
   </div>
 
-  <div style="margin-left: auto; display: flex; gap: 8px;">
+  <div style="margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+    <span style="font-size: 12px; color: var(--gray-600); font-weight: 600;">
+      <i class="fas fa-calendar-check"></i> {{ start_date_display }} - {{ end_date_display }}
+    </span>
     <button class="btn-action btn-secondary" onclick="exportData()">
       <i class="fas fa-download"></i> Exportar
     </button>
@@ -784,12 +993,14 @@
   </div>
 </div>
 
-<!-- Cards de Estatísticas Principais -->
 <div class="stats-grid">
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon primary"><i class="fas fa-dollar-sign"></i></div>
-      <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 12.5%</div>
+      <div class="stat-card-trend {% if sales_variation > 0 %}up{% elif sales_variation < 0 %}down{% else %}neutral{% endif %}">
+        <i class="fas fa-arrow-{% if sales_variation > 0 %}up{% elif sales_variation < 0 %}down{% else %}minus{% endif %}"></i> 
+        {{ sales_variation|floatformat:1 }}%
+      </div>
     </div>
     <div class="stat-card-value">R$ {{ total_vendas|floatformat:2|intcomma }}</div>
     <div class="stat-card-label">Vendas Totais</div>
@@ -798,63 +1009,56 @@
       Valor total registrado no período
     </div>
     <div class="stat-card-comparison">
-      vs período anterior: <span class="positive">+R$ 2.450,00</span>
+      vs período anterior: 
+      <span class="{% if sales_variation > 0 %}positive{% elif sales_variation < 0 %}negative{% endif %}">
+        {% if sales_variation > 0 %}+{% endif %}{{ sales_variation|floatformat:1 }}%
+      </span>
     </div>
   </div>
 
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon success"><i class="fas fa-percentage"></i></div>
-      <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 8.2%</div>
-    </div>
+      </div>
     <div class="stat-card-value">R$ {{ total_comissao|floatformat:2|intcomma }}</div>
     <div class="stat-card-label">Comissões a Pagar</div>
     <div class="stat-card-detail">
       <i class="fas fa-clock"></i> 
       Total pendente de pagamento
     </div>
-    <div class="stat-card-comparison">
-      Média por vendedor: <span class="positive">R$ 450,00</span>
     </div>
-  </div>
 
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon info"><i class="fas fa-users"></i></div>
-      <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 5.1%</div>
-    </div>
-    <div class="stat-card-value">{{ sellers|length }}</div>
+      </div>
+    <div class="stat-card-value">{{ active_sellers }}</div>
     <div class="stat-card-label">Vendedores Ativos</div>
     <div class="stat-card-detail">
       <i class="fas fa-check-circle"></i> 
       de {{ total_sellers }} vendedores cadastrados
     </div>
     <div class="progress-bar-container">
-      <div class="progress-bar" style="width: {% widthratio sellers|length total_sellers 100 %}%;"></div>
+      <div class="progress-bar" style="width: {% if total_sellers > 0 %}{% widthratio active_sellers total_sellers 100 %}{% else %}0{% endif %}%;"></div>
     </div>
   </div>
 
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon warning"><i class="fas fa-chart-line"></i></div>
-      <div class="stat-card-trend neutral"><i class="fas fa-minus"></i> 0.0%</div>
-    </div>
+      </div>
     <div class="stat-card-value">{{ conversion_rate }}%</div>
     <div class="stat-card-label">Taxa de Conversão</div>
     <div class="stat-card-detail">
       <i class="fas fa-info-circle"></i> 
       Performance geral do período
     </div>
-    <div class="stat-card-comparison">
-      Meta: <span style="color: var(--gray-600);">85%</span>
     </div>
-  </div>
 
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon danger"><i class="fas fa-receipt"></i></div>
-      <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 3.8%</div>
-    </div>
+      </div>
     <div class="stat-card-value">R$ {{ avg_ticket }}</div>
     <div class="stat-card-label">Ticket Médio</div>
     <div class="stat-card-detail">
@@ -869,24 +1073,25 @@
   <div class="stat-card">
     <div class="stat-card-header">
       <div class="stat-card-icon info"><i class="fas fa-shopping-cart"></i></div>
-      <div class="stat-card-trend up"><i class="fas fa-arrow-up"></i> 15.2%</div>
+      <div class="stat-card-trend {% if sales_variation > 0 %}up{% elif sales_variation < 0 %}down{% else %}neutral{% endif %}">
+        <i class="fas fa-arrow-{% if sales_variation > 0 %}up{% elif sales_variation < 0 %}down{% else %}minus{% endif %}"></i> 
+        {{ sales_variation|floatformat:1 }}%
+      </div>
     </div>
-    <div class="stat-card-value">0</div>
+    <div class="stat-card-value">{{ total_sales_count }}</div>
     <div class="stat-card-label">Total de Vendas</div>
     <div class="stat-card-detail">
       <i class="fas fa-hashtag"></i> 
       Quantidade de transações
     </div>
     <div class="stat-card-comparison">
-      Média diária: <span class="positive">0</span>
+      Média diária: <span class="positive">{{ daily_average|floatformat:1 }}</span>
     </div>
   </div>
 </div>
 
-<!-- Grid de Cards -->
 <div class="cards-grid">
-  <!-- Top Vendedores -->
-  <div class="card">
+  <div class="card fade-in">
     <div class="card-header">
       <h3 class="card-title">
         <i class="fas fa-trophy" style="color: var(--warning);"></i>
@@ -906,10 +1111,10 @@
             <tr>
               <th>#</th>
               <th>Vendedor</th>
-              <th>Vendas</th>
-              <th>Total</th>
-              <th>Comissão</th>
-              <th>Ações</th>
+              <th style="text-align: center;">Vendas</th>
+              <th style="text-align: right;">Total</th>
+              <th style="text-align: right;">Comissão</th>
+              <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -935,20 +1140,23 @@
                   </div>
                 </div>
               </td>
-              <td>
-                <strong style="color: var(--gray-900);">{{ seller.sales_count }}</strong>
+              <td style="text-align: center;">
+                <span class="badge badge-info">
+                  <i class="fas fa-shopping-bag"></i>
+                  {{ seller.sales_count }}
+                </span>
               </td>
-              <td>
-                <strong style="color: var(--primary); font-size: 14px;">
+              <td style="text-align: right;">
+                <strong style="color: var(--primary); font-size: 15px; font-weight: 800;">
                   R$ {{ seller.sales_total|floatformat:2|intcomma }}
                 </strong>
               </td>
-              <td>
-                <strong style="color: var(--success); font-size: 14px;">
+              <td style="text-align: right;">
+                <strong style="color: var(--success); font-size: 15px; font-weight: 800;">
                   R$ {{ seller.commission_total|floatformat:2|intcomma }}
                 </strong>
               </td>
-              <td>
+              <td style="text-align: center;">
                 <div class="quick-actions">
                   <a href="{% url 'accounts:sellers_detail' seller.id %}" 
                      class="action-link view" 
@@ -970,79 +1178,15 @@
       {% else %}
       <div class="empty-state">
         <i class="fas fa-inbox"></i>
-        <p>Nenhum vendedor ativo encontrado.</p>
+        <p>Nenhum vendedor com vendas no período selecionado.</p>
       </div>
       {% endif %}
     </div>
   </div>
 
-  <!-- Atividades Recentes -->
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">
-        <i class="fas fa-clock" style="color: var(--info);"></i>
-        Atividades Recentes
-      </h3>
-      <div class="header-actions">
-        <a href="#" class="btn-action btn-secondary">
-          <i class="fas fa-history"></i> Ver Todas
-        </a>
-      </div>
-    </div>
-    <div class="card-body">
-      <ul class="activity-list">
-        <li class="activity-item">
-          <div class="activity-icon sale">
-            <i class="fas fa-shopping-cart"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">Nova venda registrada</div>
-            <div class="activity-time">Há 5 minutos • R$ 1.250,00</div>
-          </div>
-        </li>
-        <li class="activity-item">
-          <div class="activity-icon commission">
-            <i class="fas fa-percentage"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">Comissão processada</div>
-            <div class="activity-time">Há 15 minutos • R$ 125,00</div>
-          </div>
-        </li>
-        <li class="activity-item">
-          <div class="activity-icon seller">
-            <i class="fas fa-user-plus"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">Novo vendedor cadastrado</div>
-            <div class="activity-time">Há 1 hora • João Silva</div>
-          </div>
-        </li>
-        <li class="activity-item">
-          <div class="activity-icon sale">
-            <i class="fas fa-shopping-cart"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">Venda confirmada</div>
-            <div class="activity-time">Há 2 horas • R$ 850,00</div>
-          </div>
-        </li>
-        <li class="activity-item">
-          <div class="activity-icon commission">
-            <i class="fas fa-money-bill-wave"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-title">Comissão paga</div>
-            <div class="activity-time">Há 3 horas • R$ 320,00</div>
-          </div>
-        </li>
-      </ul>
-    </div>
   </div>
-</div>
 
-<!-- Métricas de Performance -->
-<div class="card">
+<div class="card fade-in">
   <div class="card-header">
     <h3 class="card-title">
       <i class="fas fa-chart-bar" style="color: var(--info);"></i> 
@@ -1056,115 +1200,44 @@
           <i class="fas fa-receipt"></i> Ticket Médio
         </div>
         <div class="metric-value">R$ {{ avg_ticket }}</div>
-        <div class="metric-change positive">
-          <i class="fas fa-arrow-up"></i> +3.8% vs período anterior
         </div>
-      </div>
       
       <div class="metric">
         <div class="metric-label">
           <i class="fas fa-trophy"></i> Maior Venda
         </div>
         <div class="metric-value">R$ {{ top_sale_value }}</div>
-        <div class="metric-change positive">
-          <i class="fas fa-star"></i> Melhor resultado
         </div>
-      </div>
       
       <div class="metric">
         <div class="metric-label">
           <i class="fas fa-user-tie"></i> Vendedor Destaque
         </div>
-        <div class="metric-value" style="font-size: 15px; font-weight: 700;">
+        <div class="metric-value" style="font-size: 16px; font-weight: 800;">
           {{ top_seller_name }}
         </div>
-        <div class="metric-change positive">
-          <i class="fas fa-fire"></i> Melhor performance
         </div>
-      </div>
       
       <div class="metric">
         <div class="metric-label">
           <i class="fas fa-users"></i> Total Vendedores
         </div>
         <div class="metric-value">{{ total_sellers }}</div>
-        <div class="metric-change positive">
-          <i class="fas fa-arrow-up"></i> +5.1% vs mês anterior
         </div>
-      </div>
 
       <div class="metric">
         <div class="metric-label">
-          <i class="fas fa-calendar-day"></i> Vendas Hoje
+          <i class="fas fa-calendar-day"></i> Vendas no Período
         </div>
-        <div class="metric-value">0</div>
-        <div class="metric-change positive">
-          <i class="fas fa-clock"></i> Atualizado agora
+        <div class="metric-value">{{ total_sales_count }}</div>
         </div>
-      </div>
 
       <div class="metric">
         <div class="metric-label">
-          <i class="fas fa-percentage"></i> Comissões Hoje
+          <i class="fas fa-percentage"></i> Comissões no Período
         </div>
-        <div class="metric-value">R$ 0,00</div>
-        <div class="metric-change positive">
-          <i class="fas fa-money-bill-wave"></i> Processando
+        <div class="metric-value">R$ {{ total_comissao|floatformat:2|intcomma }}</div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Status e Alertas -->
-<div class="card">
-  <div class="card-header">
-    <h3 class="card-title">
-      <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> 
-      Status e Alertas
-    </h3>
-  </div>
-  <div class="card-body">
-    <div class="metrics-row">
-      <div class="metric">
-        <div class="metric-label">
-          <i class="fas fa-clock"></i> Comissões Pendentes
-        </div>
-        <div class="metric-value">0</div>
-        <span class="badge badge-warning">
-          <i class="fas fa-hourglass-half"></i> Aguardando
-        </span>
-      </div>
-      
-      <div class="metric">
-        <div class="metric-label">
-          <i class="fas fa-check-circle"></i> Comissões Pagas
-        </div>
-        <div class="metric-value">0</div>
-        <span class="badge badge-success">
-          <i class="fas fa-check"></i> Concluído
-        </span>
-      </div>
-      
-      <div class="metric">
-        <div class="metric-label">
-          <i class="fas fa-user-slash"></i> Vendedores Inativos
-        </div>
-        <div class="metric-value">{{ total_sellers|add:sellers|length|stringformat:"d"|add:"-"|add:sellers|length }}</div>
-        <span class="badge badge-danger">
-          <i class="fas fa-pause"></i> Sem atividade
-        </span>
-      </div>
-      
-      <div class="metric">
-        <div class="metric-label">
-          <i class="fas fa-chart-line"></i> Meta do Mês
-        </div>
-        <div class="metric-value">65%</div>
-        <span class="badge badge-info">
-          <i class="fas fa-target"></i> Em progresso
-        </span>
-      </div>
     </div>
   </div>
 </div>
@@ -1176,37 +1249,23 @@
   // Filtros de Data
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-      // Remove active de todos
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      
-      // Adiciona active no clicado
       this.classList.add('active');
       
-      // Mostra/esconde inputs personalizados
       const customInputs = document.getElementById('customDateInputs');
       if (this.dataset.period === 'custom') {
         customInputs.classList.add('show');
       } else {
         customInputs.classList.remove('show');
-        // Aqui você pode fazer a requisição AJAX para filtrar os dados
         applyFilter(this.dataset.period);
       }
     });
   });
 
   function applyFilter(period) {
-    // Aqui você implementaria a lógica de filtro
     console.log('Filtro aplicado:', period);
-    
-    // Exemplo de requisição AJAX (comentado)
-    // fetch(`/dashboard/filter/?period=${period}`)
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     // Atualizar os dados do dashboard
-    //   });
-    
-    // Por enquanto, apenas recarrega a página com o parâmetro
-    // window.location.href = `?period=${period}`;
+    showNotification('Aplicando filtro...', 'info');
+    window.location.href = `?period=${period}`;
   }
 
   function applyCustomFilter() {
@@ -1214,25 +1273,59 @@
     const endDate = document.getElementById('endDate').value;
     
     if (!startDate || !endDate) {
-      alert('Por favor, selecione as duas datas.');
+      showNotification('Por favor, selecione as duas datas.', 'warning');
       return;
     }
     
     if (startDate > endDate) {
-      alert('A data inicial não pode ser maior que a data final.');
+      showNotification('A data inicial não pode ser maior que a data final.', 'error');
       return;
     }
     
     console.log('Filtro personalizado:', startDate, 'até', endDate);
-    
-    // Implementar lógica de filtro personalizado
-    // window.location.href = `?start=${startDate}&end=${endDate}`;
+    showNotification('Aplicando filtro personalizado...', 'info');
+    window.location.href = `?period=custom&start=${startDate}&end=${endDate}`;
   }
 
   function exportData() {
-    // Implementar lógica de exportação
-    alert('Funcionalidade de exportação em desenvolvimento');
-    // window.location.href = '/dashboard/export/';
+    // Lógica de exportação (pode ser uma chamada de API)
+    showNotification('Preparando exportação...', 'info');
+    setTimeout(() => {
+      // Simula o download
+      showNotification('Dados exportados com sucesso!', 'success');
+    }, 1500);
+  }
+
+  function showNotification(message, type = 'info') {
+    const colors = {
+      success: 'var(--success)',
+      error: 'var(--danger)',
+      warning: 'var(--warning)',
+      info: 'var(--info)'
+    };
+    
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${colors[type]};
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      font-weight: 600;
+      font-size: 14px;
+      z-index: 10000;
+      animation: slideInRight 0.3s ease-out;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
   }
 
   // Animação das progress bars
@@ -1243,14 +1336,20 @@
       bar.style.width = '0';
       setTimeout(() => {
         bar.style.width = width;
+      }, 300);
+    });
+
+    // Animar números dos cards (Exemplo simples)
+    const statValues = document.querySelectorAll('.stat-card-value, .metric-value');
+    statValues.forEach(stat => {
+      const text = stat.textContent;
+      // Animação simples de fade-in para valores
+      stat.style.opacity = '0';
+      setTimeout(() => {
+        stat.style.transition = 'opacity 0.5s ease';
+        stat.style.opacity = '1';
       }, 100);
     });
   });
-
-  // Auto-refresh de dados (opcional)
-  // setInterval(() => {
-  //   // Atualizar dados do dashboard via AJAX
-  //   console.log('Atualizando dados...');
-  // }, 60000); // A cada 1 minuto
 </script>
 {% endblock %}

@@ -23,8 +23,8 @@ class SaleForm(forms.ModelForm):
 
     def clean_total_amount(self):
         total_amount = self.cleaned_data.get('total_amount')
-        if total_amount is not None and total_amount < 0:
-            raise forms.ValidationError("O valor total da venda não pode ser negativo.")
+        if total_amount is not None and total_amount <= 0:
+            raise forms.ValidationError("O valor total deve ser maior que zero.")
         return total_amount
 
     def clean_date(self):

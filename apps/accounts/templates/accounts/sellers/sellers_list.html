@@ -576,11 +576,46 @@
             justify-content: center;
         }
     }
+    
+    /* === CSS DO LOADER === */
+    #loader {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.6);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.2s ease-in-out;
+    }
+    .spinner {
+        width: 45px;
+        height: 45px;
+        border: 4px solid #e0e0e0;
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Animação dos elementos */
+    .fade-item {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .fade-item.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Stats Bar -->
+
 <div class="stats-bar">
     <div class="stat-box">
         <div class="stat-icon primary"><i class="fas fa-users"></i></div>
@@ -607,7 +642,6 @@
     </div>
 </div>
 
-<!-- Toolbar -->
 <div class="toolbar">
     <div class="search-box">
         <i class="fas fa-search"></i>
@@ -634,320 +668,274 @@
     </a>
 </div>
 
-<!-- Sellers Grid (CARDS) -->
 {% if sellers %}
-<div class="sellers-grid" id="sellersGrid">
-    {% for seller in sellers %}
-    <div class="seller-card" data-status="{{ seller.is_active|yesno:'active,inactive' }}" data-search="{{ seller.get_full_name|lower }} {{ seller.email|lower }} {{ seller.cpf|lower }}">
-        <div class="seller-header">
-            <div class="seller-avatar">{{ seller.first_name.0|default:"?"|upper }}</div>
-            <div class="seller-info">
-                <div class="seller-name">{{ seller.get_full_name }}</div>
-                <div class="seller-email">{{ seller.email }}</div>
-            </div>
-            <span class="seller-status {{ seller.is_active|yesno:'active,inactive' }}">
-                <i class="fas fa-circle"></i>
-                {{ seller.is_active|yesno:'Ativo,Inativo' }}
-            </span>
-        </div>
 
-        <div class="seller-meta">
-            {% if seller.cpf %}
-            <div class="meta-item"><i class="fas fa-id-card"></i>
-                <span>CPF: <span class="meta-value">{{ seller.cpf }}</span></span>
-            </div>
-            {% endif %}
-            <div class="meta-item"><i class="fas fa-calendar-alt"></i>
-                <span>Cadastrado: <span class="meta-value">{{ seller.date_joined|date:"d/m/Y" }}</span></span>
-            </div>
-        </div>
+    <!-- CARDS -->
+    <div class="sellers-grid" id="sellersGrid">
+        {% for seller in sellers %}
+        <div class="seller-card fade-item"
+             data-status="{{ seller.is_active|yesno:'active,inactive' }}"
+             data-search="{{ seller.get_full_name|lower }} {{ seller.email|lower }} {{ seller.cpf|lower }}">
 
-        <div class="seller-actions">
-            <a class="action-btn view" href="{% url 'accounts:sellers_detail' seller.pk %}">
-                <i class="fas fa-eye"></i> Ver
-            </a>
-            <a class="action-btn edit" href="{% url 'accounts:sellers_update' seller.pk %}">
-                <i class="fas fa-edit"></i> Editar
-            </a>
+            <div class="seller-header">
+                <div class="seller-avatar">{{ seller.first_name.0|default:"?"|upper }}</div>
+                <div class="seller-info">
+                    <div class="seller-name">{{ seller.get_full_name }}</div>
+                    <div class="seller-email">{{ seller.email }}</div>
+                </div>
+
+                <span class="seller-status {{ seller.is_active|yesno:'active,inactive' }}">
+                    <i class="fas fa-circle"></i>
+                    {{ seller.is_active|yesno:'Ativo,Inativo' }}
+                </span>
+            </div>
+
+            <div class="seller-meta">
+                {% if seller.cpf %}
+                <div class="meta-item">
+                    <i class="fas fa-id-card"></i>
+                    <span>CPF: <span class="meta-value">{{ seller.cpf }}</span></span>
+                </div>
+                {% endif %}
+                <div class="meta-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Cadastrado: <span class="meta-value">{{ seller.date_joined|date:"d/m/Y" }}</span></span>
+                </div>
+            </div>
+
+            <div class="seller-actions">
+                <a class="action-btn view" href="{% url 'accounts:sellers_detail' seller.pk %}">
+                    <i class="fas fa-eye"></i> Ver
+                </a>
+                <a class="action-btn edit" href="{% url 'accounts:sellers_update' seller.pk %}">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+            </div>
+
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 
-<!-- Sellers Table -->
-<div class="sellers-table-wrapper" id="tableWrapper">
-    <table class="sellers-table">
-        <thead>
-            <tr>
-                <th>Vendedor</th>
-                <th>CPF</th>
-                <th>Cadastrado</th>
-                <th>Status</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            {% for seller in sellers %}
-            <tr data-status="{{ seller.is_active|yesno:'active,inactive' }}" data-search="{{ seller.get_full_name|lower }} {{ seller.email|lower }} {{ seller.cpf|lower }}">
-                <td>
-                    <div class="table-avatar">
-                        <div class="table-avatar-icon">{{ seller.first_name.0|default:"?"|upper }}</div>
-                        <div>
-                            <div class="table-name">{{ seller.get_full_name }}</div>
-                            <div class="table-email">{{ seller.email }}</div>
+    <!-- TABELA -->
+    <div class="sellers-table-wrapper" id="tableWrapper">
+        <table class="sellers-table">
+            <thead>
+                <tr>
+                    <th>Vendedor</th>
+                    <th>CPF</th>
+                    <th>Cadastrado</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for seller in sellers %}
+                <tr class="fade-item"
+                    data-status="{{ seller.is_active|yesno:'active,inactive' }}"
+                    data-search="{{ seller.get_full_name|lower }} {{ seller.email|lower }} {{ seller.cpf|lower }}">
+
+                    <td>
+                        <div class="table-avatar">
+                            <div class="table-avatar-icon">{{ seller.first_name.0|default:"?"|upper }}</div>
+                            <div>
+                                <div class="table-name">{{ seller.get_full_name }}</div>
+                                <div class="table-email">{{ seller.email }}</div>
+                            </div>
                         </div>
-                    </div>
-                </td>
-                <td>{{ seller.cpf }}</td>
-                <td>{{ seller.date_joined|date:"d/m/Y" }}</td>
-                <td>
-                    <span class="seller-status {{ seller.is_active|yesno:'active,inactive' }}">
-                        <i class="fas fa-circle"></i>
-                        {{ seller.is_active|yesno:'Ativo,Inativo' }}
-                    </span>
-                </td>
-                <td>
-                    <div class="table-actions">
-                        <a class="table-action-btn view" href="{% url 'accounts:sellers_detail' seller.pk %}">
-                            <i class="fas fa-eye"></i> Ver
-                        </a>
-                        <a class="table-action-btn edit" href="{% url 'accounts:sellers_update' seller.pk %}">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+                    </td>
 
-<!-- Pagination -->
-<div class="pagination-wrapper">
-    <button class="pagination-btn" id="prevBtn" onclick="previousPage()">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    
-    <div id="pageNumbers"></div>
-    
-    <button class="pagination-btn" id="nextBtn" onclick="nextPage()">
-        <i class="fas fa-chevron-right"></i>
-    </button>
+                    <td>{{ seller.cpf }}</td>
+                    <td>{{ seller.date_joined|date:"d/m/Y" }}</td>
 
-    <span class="pagination-info">
-        <span id="pageInfo">Página 1</span>
-    </span>
-</div>
+                    <td>
+                        <span class="seller-status {{ seller.is_active|yesno:'active,inactive' }}">
+                            <i class="fas fa-circle"></i>
+                            {{ seller.is_active|yesno:'Ativo,Inativo' }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <div class="table-actions">
+                            <a class="table-action-btn view" href="{% url 'accounts:sellers_detail' seller.pk %}">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
+                            <a class="table-action-btn edit" href="{% url 'accounts:sellers_update' seller.pk %}">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                        </div>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAGINAÇÃO -->
+    <div class="pagination-wrapper">
+        <button class="pagination-btn" id="prevBtn" onclick="previousPage()">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div id="pageNumbers"></div>
+
+        <button class="pagination-btn" id="nextBtn" onclick="nextPage()">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+        <span class="pagination-info">
+            <span id="pageInfo">Página 1</span>
+        </span>
+    </div>
 
 {% else %}
-<div class="empty-state">
-    <i class="fas fa-users"></i>
-    <h3>Nenhum vendedor cadastrado</h3>
-    <p>Comece cadastrando seu primeiro vendedor no sistema</p>
-    <a href="{% url 'accounts:sellers_create' %}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Cadastrar Vendedor
-    </a>
-</div>
+    <div class="empty-state">
+        <i class="fas fa-users"></i>
+        <h3>Nenhum vendedor cadastrado</h3>
+        <p>Comece cadastrando seu primeiro vendedor no sistema</p>
+        <a href="{% url 'accounts:sellers_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Cadastrar Vendedor
+        </a>
+    </div>
 {% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
-<style>
-/* Loader minimalista */
-#loader {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255,255,255,0.6);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
-    transition: opacity 0.2s ease-in-out;
-}
-.spinner {
-    width: 45px;
-    height: 45px;
-    border: 4px solid #e0e0e0;
-    border-top-color: #007bff;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
 
-/* Animação dos elementos */
-.fade-item {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
-}
-.fade-item.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-</style>
-
-<!-- Loader -->
-<div id="loader">
-    <div class="spinner"></div>
-</div>
+<!-- LOADER -->
+<div id="loader"><div class="spinner"></div></div>
 
 <script>
 const ITEMS_PER_PAGE = 12;
 let currentPage = 1;
-let currentView = 'cards';
-let currentFilter = 'all';
-let currentSearch = '';
+let currentView = "cards";
+let currentFilter = "all";
+let currentSearch = "";
 
+/* Loader */
 function showLoader() {
-    const loader = document.getElementById('loader');
-    loader.style.display = 'flex';
-    loader.style.opacity = '1';
+    const loader = document.getElementById("loader");
+    loader.style.display = "flex";
+    loader.style.opacity = "1";
 }
+
 function hideLoader() {
-    const loader = document.getElementById('loader');
-    loader.style.opacity = '0';
-    setTimeout(() => loader.style.display = 'none', 150);
+    const loader = document.getElementById("loader");
+    loader.style.opacity = "0";
+    setTimeout(() => loader.style.display = "none", 200);
 }
 
-/* Aplica o fade-in */
-function animateItems(items) {
-    items.forEach((item, i) => {
-        item.classList.add('fade-item');
-        setTimeout(() => item.classList.add('show'), 40 * i);
-    });
+/* Paginação */
+function getItems() {
+    return currentView === "cards"
+        ? [...document.querySelectorAll("#sellersGrid .seller-card")]
+        : [...document.querySelectorAll("#tableBody tr")];
 }
 
-function getVisibleItems() {
-    const selector = currentView === 'cards' ? '.seller-card' : '#tableBody tr';
-    const allItems = document.querySelectorAll(selector);
-    allItems.forEach(item => item.classList.remove('hidden'));
+function applyPagination() {
+    const items = getItems();
 
-    return Array.from(allItems).filter(item => {
-        const status = item.dataset.status;
-        const search = item.dataset.search || '';
-        const matchesFilter = currentFilter === 'all' || status === currentFilter;
-        const matchesSearch = search.includes(currentSearch.toLowerCase());
-        return matchesFilter && matchesSearch;
-    });
-}
+    const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+    if (currentPage > totalPages) currentPage = totalPages || 1;
 
-function showPage(page) {
-    currentPage = page;
-    const selector = currentView === 'cards' ? '.seller-card' : '#tableBody tr';
-    const allItems = document.querySelectorAll(selector);
-    const visibleItems = getVisibleItems();
+    items.forEach((item, index) => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
 
-    const totalPages = Math.max(1, Math.ceil(visibleItems.length / ITEMS_PER_PAGE));
-    if (page > totalPages) currentPage = totalPages;
-    if (page < 1) currentPage = 1;
-
-    allItems.forEach(item => item.classList.add('hidden', 'fade-item'));
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-    const pageItems = visibleItems.slice(start, end);
-
-    pageItems.forEach(item => {
-        item.classList.remove('hidden', 'show');
+        item.style.display = index >= start && index < end ? "" : "none";
     });
 
-    animateItems(pageItems);
-    updatePaginationButtons(totalPages);
-    updatePageInfo(totalPages);
-    hideLoader();
+    renderPageNumbers(totalPages);
+    document.getElementById("pageInfo").textContent = `Página ${currentPage}`;
 }
 
-function updatePagination(totalPages) {
-    const container = document.getElementById('pageNumbers');
-    container.innerHTML = '';
+function renderPageNumbers(totalPages) {
+    const container = document.getElementById("pageNumbers");
+    container.innerHTML = "";
+
     for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.className = `pagination-btn ${i === 1 ? 'active' : ''}`;
+        const btn = document.createElement("button");
+        btn.className = "pagination-btn" + (i === currentPage ? " active" : "");
         btn.textContent = i;
-        btn.onclick = () => showPage(i);
+        btn.onclick = () => { currentPage = i; applyPagination(); };
         container.appendChild(btn);
     }
 }
 
-function updatePaginationButtons(totalPages) {
-    document.getElementById('prevBtn').disabled = currentPage === 1;
-    document.getElementById('nextBtn').disabled = currentPage === totalPages;
-    document.querySelectorAll('#pageNumbers .pagination-btn').forEach((btn, index) => {
-        btn.classList.toggle('active', index + 1 === currentPage);
-    });
-}
-
-function updatePageInfo(totalPages) {
-    const info = document.getElementById('pageInfo');
-    info.textContent = `Página ${currentPage} de ${totalPages}`;
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        applyPagination();
+    }
 }
 
 function nextPage() {
-    const items = getVisibleItems();
+    const items = getItems();
     const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
-    if (currentPage < totalPages) showPage(currentPage + 1);
+
+    if (currentPage < totalPages) {
+        currentPage++;
+        applyPagination();
+    }
 }
 
-function previousPage() {
-    if (currentPage > 1) showPage(currentPage - 1);
-}
+/* Busca + Filtro */
+document.getElementById("searchInput").addEventListener("input", e => {
+    currentSearch = e.target.value.toLowerCase();
+    filterItems();
+});
 
-function initPagination() {
-    const items = getVisibleItems();
-    const totalPages = Math.max(1, Math.ceil(items.length / ITEMS_PER_PAGE));
-    updatePagination(totalPages);
-    showPage(1);
-}
-
-/* Filtros */
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.onclick = () => {
+        document.querySelector(".filter-btn.active")?.classList.remove("active");
+        btn.classList.add("active");
         currentFilter = btn.dataset.filter;
-        currentPage = 1;
-        showLoader();
-        initPagination();
+        filterItems();
+    };
+});
+
+function filterItems() {
+    const items = getItems();
+
+    items.forEach(item => {
+        const s = item.dataset.search;
+        const st = item.dataset.status;
+
+        const matchSearch = s.includes(currentSearch);
+        const matchStatus = currentFilter === "all" || currentFilter === st;
+
+        item.classList.toggle("hidden", !(matchSearch && matchStatus));
     });
-});
 
-/* Busca */
-document.getElementById('searchInput').addEventListener('input', (e) => {
-    currentSearch = e.target.value;
-    currentPage = 1;
-    initPagination();
-});
+    applyPagination();
+}
 
-/* Alternância Cards / Tabela */
-document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
+/* Troca entre Cards e Tabela */
+document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.onclick = () => {
+        document.querySelector(".view-btn.active")?.classList.remove("active");
+        btn.classList.add("active");
         currentView = btn.dataset.view;
-        const grid = document.getElementById('sellersGrid');
-        const table = document.getElementById('tableWrapper');
 
-        if (currentView === 'cards') {
-            grid.style.display = 'grid';
-            table.classList.remove('active');
-        } else {
-            grid.style.display = 'none';
-            table.classList.add('active');
-        }
+        document.getElementById("sellersGrid").style.display =
+            currentView === "cards" ? "grid" : "none";
 
-        currentPage = 1;
-        showLoader();
-        initPagination();
-    });
+        document.getElementById("tableWrapper").style.display =
+            currentView === "table" ? "block" : "none";
+
+        applyPagination();
+    };
 });
 
-/* Inicialização */
-document.addEventListener('DOMContentLoaded', () => {
-    showLoader();
-    initPagination();
+/* Animação suave */
+window.addEventListener("load", () => {
+    hideLoader();
+    document.querySelectorAll(".fade-item").forEach(el =>
+        el.classList.add("show")
+    );
+    applyPagination();
 });
 </script>
+
 {% endblock %}
