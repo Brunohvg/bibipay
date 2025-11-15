@@ -1,21 +1,19 @@
-# apps/commissions/services.py
-
 from decimal import Decimal
 from django.db.models import Sum, Q, Count
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django.db.models.functions import TruncMonth
 
 from apps.commissions.models import Commission
 
 
-# ==========================
-# FUNÇÕES DE LEITURA (Read)
-# ==========================    
+# =========================================================================
+# FUNÇÕES DE LEITURA (READ)
+# =========================================================================    
 
 def get_commission_by_id(commission_id: int) -> Commission:
     """
     Retorna uma comissão específica pelo seu ID.
-    Lança 404 se não for encontrada.
     """
     return get_object_or_404(Commission, pk=commission_id)
 
@@ -24,13 +22,12 @@ def get_all_commissions() -> list[Commission]:
     """
     Retorna todas as comissões cadastradas.
     """
-    return list(Commission.objects.all())
+    return Commission.objects.all()
 
 
 def get_total_commission_value(seller_id: int | None = None) -> Decimal:
     """
     Retorna o valor total de todas as comissões não pagas.
-    Se um seller_id for informado, filtra apenas por esse vendedor.
     """
     queryset = Commission.objects.filter(paid=False)
 
@@ -66,6 +63,7 @@ def get_commission_totals_for_cards() -> dict:
 def get_commissions_ready_for_payment() -> list[dict]:
     """
     Retorna comissões NÃO PAGAS, agrupadas por vendedor.
+    A chave principal de valor é 'total_commission'.
     """
     commissions = Commission.objects.filter(
         paid=False
@@ -76,9 +74,11 @@ def get_commissions_ready_for_payment() -> list[dict]:
         'sale__seller__first_name', 
         'sale__seller__last_name'
     ).annotate(
-        total_value=Sum('value'),
+        # CORREÇÃO: Usamos total_commission para consistência com a View
+        total_commission=Sum('value'), 
+        total_sales=Sum('sale__total_amount'), # Valor total das vendas (para display)
         commission_count=Count('id')
-    ).order_by('-total_value')
+    ).order_by('-total_commission')
     
     payment_groups = []
 
@@ -93,7 +93,9 @@ def get_commissions_ready_for_payment() -> list[dict]:
         payment_groups.append({
             'seller_id': seller_id,
             'seller_name': f"{group['sale__seller__first_name']} {group['sale__seller__last_name']}",
-            'total_value': group['total_value'],
+            # CHAVE CORRIGIDA
+            'total_commission': group['total_commission'], 
+            'total_sales': group['total_sales'],
             'commission_count': group['commission_count'],
             'commission_ids': commission_ids,
         })
@@ -101,31 +103,14 @@ def get_commissions_ready_for_payment() -> list[dict]:
     return payment_groups
 
 
-# ==========================
-# FUNÇÕES DE ESCRITA (Write)
-# ========================== 
-
-def mark_commissions_as_paid(commission_ids: list[int]) -> int:
-    """
-    Marca uma lista de IDs de comissões como pagas e define o paid_at.
-    Retorna a quantidade de atualizações realizadas.
-    """
-    updated_count = Commission.objects.filter(
-        id__in=commission_ids,
-        paid=False
-    ).update(
-        paid=True,
-        paid_at=timezone.now()
-    )
-    return updated_count
-
 def get_paid_commissions_history(seller_id=None, start_date=None, end_date=None):
     """
-    Retorna todas as comissões PAGAS, filtradas por vendedor e data de pagamento.
+    Retorna todas as comissões PAGAS DETALHADAS (objetos Commission), 
+    filtradas por vendedor e data de pagamento.
     """
     queryset = Commission.objects.filter(
         paid=True
-    ).select_related('sale__seller').order_by('-paid_at') # Ordena pelo mais recente PAGO
+    ).select_related('sale__seller').order_by('-paid_at')
 
     if seller_id:
         queryset = queryset.filter(sale__seller_id=seller_id)
@@ -140,15 +125,9 @@ def get_paid_commissions_history(seller_id=None, start_date=None, end_date=None)
     return queryset
 
 
-from django.db.models import Sum, Count
-from django.db.models.functions import TruncMonth # 👈 NOVO IMPORT
-# ... (mantenha os outros imports e funções)
-
-# ...
-
 def get_paid_commissions_summary(seller_id=None, start_date=None, end_date=None):
     """
-    Retorna o histórico de comissões PAGAS, agrupado por Vendedor e Mês de Pagamento.
+    Retorna o histórico de comissões PAGAS, AGRUPADO por Vendedor e Mês de Pagamento.
     """
     queryset = Commission.objects.filter(
         paid=True
@@ -166,7 +145,6 @@ def get_paid_commissions_summary(seller_id=None, start_date=None, end_date=None)
         
     # Agrupamento e Agregação
     summary = queryset.annotate(
-        # Cria um novo campo 'payment_month' truncando o 'paid_at' para o início do mês
         payment_month=TruncMonth('paid_at')
     ).values(
         'sale__seller_id', 
@@ -180,3 +158,21 @@ def get_paid_commissions_summary(seller_id=None, start_date=None, end_date=None)
     ).order_by('-payment_month', 'sale__seller__first_name')
 
     return summary
+
+
+# =========================================================================
+# FUNÇÕES DE ESCRITA (WRITE)
+# ========================================================================= 
+
+def mark_commissions_as_paid(commission_ids: list[int]) -> int:
+    """
+    Marca uma lista de IDs de comissões como pagas e define o paid_at.
+    """
+    updated_count = Commission.objects.filter(
+        id__in=commission_ids,
+        paid=False
+    ).update(
+        paid=True,
+        paid_at=timezone.now()
+    )
+    return updated_count
