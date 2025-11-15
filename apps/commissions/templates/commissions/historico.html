@@ -1,67 +1,152 @@
 {% extends "base/base.html" %}
 {% load humanize %} 
 
-{% block title %}Configurações de Comissão{% endblock %}
-{% block page_title %}Configurações Globais{% endblock %}
-{% block page_subtitle %}Defina a taxa de comissão padrão e outras regras do sistema.{% endblock %}
+{% block title %}Histórico Consolidado{% endblock %}
+{% block page_title %}Histórico Consolidado de Pagamentos{% endblock %}
+{% block page_subtitle %}Consulte o total pago por vendedor em cada mês de pagamento.{% endblock %}
 
 {% block extra_css %}
 <style>
-  /* Adicione aqui os estilos de filtro e tabela se necessário, mas o principal é FORM */
-  .card {
-    background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); margin-bottom: 24px; border: 1px solid var(--gray-200); overflow: hidden;
+  :root {
+    --primary: #667eea; --primary-dark: #5568d3; --secondary: #764ba2;
+    --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+    --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-900: #111827;
   }
-  .card-body { padding: 24px; }
-  .form-group { margin-bottom: 20px; }
-  .form-label { display: block; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; font-size: 14px; }
-  .form-control { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-200); border-radius: 10px; font-size: 14px; outline: none; transition: all 0.3s ease; background: var(--gray-50); font-family: 'Inter', sans-serif; }
+  .filters-bar { background: white; padding: 20px 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); margin-bottom: 24px; border: 1px solid var(--gray-200); display: flex; gap: 20px; align-items: flex-end; flex-wrap: wrap; }
+  .filter-group { display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 180px; }
+  .filter-label { font-size: 13px; font-weight: 600; color: var(--gray-700); }
+  .form-control { width: 100%; padding: 10px 14px; border: 2px solid var(--gray-200); border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s ease; background: var(--gray-50); font-family: 'Inter', sans-serif; }
   .form-control:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; }
   .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
   .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4); }
+  .btn-secondary { background: var(--gray-100); color: var(--gray-700); }
+  .btn-secondary:hover { background: var(--gray-200); }
+  .table-responsive { overflow-x: auto; border-radius: 8px; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  thead { background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%); }
+  th { padding: 16px 18px; text-align: left; font-size: 12px; font-weight: 800; color: var(--gray-700); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--gray-200); }
+  td { padding: 18px; border-bottom: 1px solid var(--gray-100); font-size: 14px; color: var(--gray-700); }
+  tbody tr:hover { background: linear-gradient(90deg, rgba(102, 126, 234, 0.03), transparent); }
+  .seller-row { display: flex; align-items: center; gap: 14px; }
+  .seller-avatar { width: 42px; height: 42px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; flex-shrink: 0; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+  .seller-info { flex: 1; min-width: 0; }
+  .seller-name { font-weight: 700; color: var(--gray-900); margin-bottom: 4px; font-size: 14px; }
+  .empty-state { padding: 80px 40px; text-align: center; color: var(--gray-500); }
+  .empty-state i { font-size: 48px; color: var(--gray-300); margin-bottom: 16px; }
+  .empty-state-title { font-size: 18px; font-weight: 700; color: var(--gray-800); margin-bottom: 8px; }
+  .empty-state-text { font-size: 14px; }
+  .totals-summary { display: flex; gap: 20px; background: var(--gray-50); padding: 20px; border-radius: 12px; border: 1px solid var(--gray-200); margin-top: 20px; }
+  .total-item { flex: 1; }
+  .total-label { font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; margin-bottom: 6px; }
+  .total-value { font-size: 24px; font-weight: 800; color: var(--primary); }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div class="card" style="max-width: 700px;">
+<div class="card">
   <div class="card-body">
-    
-    <p style="color: var(--gray-600); margin-bottom: 25px; font-size: 14px;">
-      A taxa definida abaixo será usada automaticamente para calcular comissões de todos os novos vendedores, 
-      a menos que uma taxa específica seja definida no cadastro de cada vendedor.
-    </p>
-
-    <form method="post">
-      {% csrf_token %}
-      
-      <div class="form-group">
-        <label for="{{ form.default_rate.id_for_label }}" class="form-label">
-          Taxa de Comissão Padrão (%)
-        </label>
-        <div style="display: flex; align-items: center; gap: 10px;">
-            {{ form.default_rate }}
-            <span style="font-size: 24px; font-weight: 700; color: var(--gray-500);">%</span>
-        </div>
-        
-        {% if form.default_rate.errors %}
-            <div class="form-error">{{ form.default_rate.errors }}</div>
-        {% endif %}
+    <form method="GET" action="" class="filters-bar" style="margin-bottom: 0; box-shadow: none; border: none; padding: 0;">
+      <div class="filter-group">
+        <label for="seller" class="filter-label">Vendedor</label>
+        <select name="seller" id="seller" class="form-control">
+          <option value="">Todos os vendedores</option>
+          {% for seller in all_sellers %}
+            <option value="{{ seller.id }}" {% if selected_seller == seller.id|stringformat:"s" %}selected{% endif %}>
+              {{ seller.first_name }} {{ seller.last_name }}
+            </option>
+          {% endfor %}
+        </select>
       </div>
       
-      <hr style="border: 0; border-top: 1px solid var(--gray-200); margin: 30px 0;">
-
-      <div class="form-group">
-        <h4 style="font-size: 16px; font-weight: 700; color: var(--gray-800);">Regras Avançadas</h4>
-        <p style="font-size: 13px; color: var(--gray-500);">
-          Nenhuma regra avançada definida ainda.
-        </p>
+      <div class="filter-group">
+        <label for="start_date" class="filter-label">Data Pagamento (De)</label>
+        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ selected_start_date|default:'' }}">
       </div>
-
-      <button type="submit" class="btn btn-primary">
-        <i class="fas fa-save"></i> Salvar Configurações
-      </button>
+      
+      <div class="filter-group">
+        <label for="end_date" class="filter-label">Data Pagamento (Até)</label>
+        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ selected_end_date|default:'' }}">
+      </div>
+      
+      <div class="filter-group">
+        <button type="submit" class="btn btn-primary" style="padding-top: 12px; padding-bottom: 12px;">
+          <i class="fas fa-filter"></i> Filtrar
+        </button>
+      </div>
+      <div class="filter-group">
+         <a href="{% url 'commissions:commission_history' %}" class="btn btn-secondary" style="padding-top: 12px; padding-bottom: 12px;">
+          Limpar
+        </a>
+      </div>
     </form>
   </div>
 </div>
 
+<div class="card">
+  <div class="card-body" style="padding: 0;">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Vendedor</th>
+            <th>Mês de Pagamento</th>
+            <th style="text-align: center;">Vendas (Qtd)</th>
+            <th style="text-align: right;">Total Vendido (No Mês)</th>
+            <th style="text-align: right;">Comissão Total Paga</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in summary_data %} 
+          <tr>
+            <td>
+              <div class="seller-row">
+                <div class="seller-avatar">{{ item.sale__seller__first_name.0|upper }}{{ item.sale__seller__last_name.0|upper }}</div>
+                <div class="seller-info">
+                  <div class="seller-name">{{ item.sale__seller__first_name }} {{ item.sale__seller__last_name }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span style="font-weight: 600;">{{ item.payment_month|date:"F/Y" }}</span> 
+            </td>
+            <td style="text-align: center;">{{ item.commission_count }}</td>
+            <td style="text-align: right; color: var(--gray-600);">
+              R$ {{ item.total_sales|floatformat:2|intcomma }}
+            </td>
+            <td style="text-align: right; font-weight: 700; color: var(--success);">
+              R$ {{ item.total_commission|floatformat:2|intcomma }}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5">
+              <div class="empty-state">
+                <i class="fas fa-history"></i>
+                <p class="empty-state-title">Nenhum histórico consolidado encontrado</p>
+                <p class="empty-state-text">Nenhuma comissão foi paga ainda ou não há resultados para os filtros aplicados.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="padding: 24px;">
+      <div class="totals-summary">
+        <div class="total-item">
+          <div class="total-label">Total GERAL de Vendas (Filtrado)</div>
+          <div class="total-value" style="color: var(--gray-700);">R$ {{ total_sales_filtered|floatformat:2|intcomma }}</div>
+        </div>
+        <div class="total-item">
+          <div class="total-label">Total GERAL de Comissões Pagas (Filtrado)</div>
+          <div class="total-value" style="color: var(--success);">R$ {{ total_commission_filtered|floatformat:2|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
