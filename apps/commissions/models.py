@@ -8,7 +8,6 @@ from apps.core.models import BaseModel
 class Commission(BaseModel):
     """
     Representa a comissão gerada a partir de uma venda (Sale).
-    Cada venda possui apenas uma comissão.
     """
 
     seller = models.ForeignKey(
@@ -38,6 +37,7 @@ class Commission(BaseModel):
     )
     paid = models.BooleanField(
         default=False,
+        db_index=True, # 💡 OTIMIZAÇÃO: Para consultas mais rápidas de paid=False
         help_text="Indica se a comissão já foi paga."
     )
     paid_at = models.DateTimeField(
@@ -62,13 +62,24 @@ class Commission(BaseModel):
         - Recalcula o valor antes de salvar.
         - Define data de pagamento, se necessário.
         """
-        self.set_percentage()
-        self.calculate_value()
+        # Se for a primeira vez (criação), atribui o seller e a sale
+        if not self.pk:
+            # Garante que as FKs estejam preenchidas antes do cálculo
+            if self.seller and self.sale:
+                self.set_percentage()
+                self.calculate_value()
+        
+        # O self.seller já deve ter sido definido antes de chamar save() se o modelo for criado via forms/views.
 
         if self.paid and not self.paid_at:
             self.paid_at = timezone.now()
+        # Se paid for desmarcado, limpa o paid_at
+        elif not self.paid and self.paid_at:
+            self.paid_at = None
 
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Comissão de {self.seller.first_name} - {self.sale.date} - R$ {self.value:.2f}"
+        # Acesso ao sale.date só é seguro se a sale existir
+        sale_date = self.sale.date.strftime('%d/%m/%Y') if self.sale and self.sale.date else 'Sem data'
+        return f"Comissão de {self.seller.first_name} - {sale_date} - R$ {self.value:.2f}"

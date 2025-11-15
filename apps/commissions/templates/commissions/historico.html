@@ -1,0 +1,67 @@
+{% extends "base/base.html" %}
+{% load humanize %} 
+
+{% block title %}Configurações de Comissão{% endblock %}
+{% block page_title %}Configurações Globais{% endblock %}
+{% block page_subtitle %}Defina a taxa de comissão padrão e outras regras do sistema.{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Adicione aqui os estilos de filtro e tabela se necessário, mas o principal é FORM */
+  .card {
+    background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); margin-bottom: 24px; border: 1px solid var(--gray-200); overflow: hidden;
+  }
+  .card-body { padding: 24px; }
+  .form-group { margin-bottom: 20px; }
+  .form-label { display: block; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; font-size: 14px; }
+  .form-control { width: 100%; padding: 12px 16px; border: 2px solid var(--gray-200); border-radius: 10px; font-size: 14px; outline: none; transition: all 0.3s ease; background: var(--gray-50); font-family: 'Inter', sans-serif; }
+  .form-control:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+  .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="card" style="max-width: 700px;">
+  <div class="card-body">
+    
+    <p style="color: var(--gray-600); margin-bottom: 25px; font-size: 14px;">
+      A taxa definida abaixo será usada automaticamente para calcular comissões de todos os novos vendedores, 
+      a menos que uma taxa específica seja definida no cadastro de cada vendedor.
+    </p>
+
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label for="{{ form.default_rate.id_for_label }}" class="form-label">
+          Taxa de Comissão Padrão (%)
+        </label>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            {{ form.default_rate }}
+            <span style="font-size: 24px; font-weight: 700; color: var(--gray-500);">%</span>
+        </div>
+        
+        {% if form.default_rate.errors %}
+            <div class="form-error">{{ form.default_rate.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <hr style="border: 0; border-top: 1px solid var(--gray-200); margin: 30px 0;">
+
+      <div class="form-group">
+        <h4 style="font-size: 16px; font-weight: 700; color: var(--gray-800);">Regras Avançadas</h4>
+        <p style="font-size: 13px; color: var(--gray-500);">
+          Nenhuma regra avançada definida ainda.
+        </p>
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-save"></i> Salvar Configurações
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

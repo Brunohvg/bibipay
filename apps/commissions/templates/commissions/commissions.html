@@ -1,0 +1,147 @@
+{% extends "base/base.html" %}
+{% load humanize %} 
+
+{% block title %}Acompanhamento de Comissões{% endblock %}
+{% block page_title %}Acompanhamento de Comissões{% endblock %}
+{% block page_subtitle %}Gere relatórios de pagamento para enviar à contabilidade.{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --primary: #667eea; --primary-dark: #5568d3; --secondary: #764ba2;
+    --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #3b82f6;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+    --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151; --gray-900: #111827;
+  }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 32px; }
+  .stat-card { background: white; padding: 28px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04); transition: all 0.4s; border: 1px solid var(--gray-200); position: relative; overflow: hidden; }
+  .stat-card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1); }
+  .stat-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .stat-card-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; transition: all 0.3s ease; }
+  .stat-card-icon.primary { background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.05)); color: var(--primary); }
+  .stat-card-icon.success { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05)); color: var(--success); }
+  .stat-card-icon.warning { background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); color: var(--warning); }
+  .stat-card-value { font-size: 36px; font-weight: 900; color: var(--gray-900); margin-bottom: 8px; line-height: 1; }
+  .stat-card-label { font-size: 14px; color: var(--gray-600); font-weight: 600; text-transform: uppercase; }
+  .table-responsive { overflow-x: auto; border-radius: 8px; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  thead { background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%); }
+  th { padding: 16px 18px; text-align: left; font-size: 12px; font-weight: 800; color: var(--gray-700); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--gray-200); }
+  td { padding: 18px; border-bottom: 1px solid var(--gray-100); font-size: 14px; color: var(--gray-700); }
+  tbody tr { transition: all 0.2s ease; }
+  tbody tr:hover { background: linear-gradient(90deg, rgba(102, 126, 234, 0.03), transparent); }
+  .seller-row { display: flex; align-items: center; gap: 14px; }
+  .seller-avatar { width: 42px; height: 42px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 800; flex-shrink: 0; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+  .seller-info { flex: 1; min-width: 0; }
+  .seller-name { font-weight: 700; color: var(--gray-900); margin-bottom: 4px; font-size: 14px; }
+  .header-actions { display: flex; gap: 10px; }
+  .btn-action { padding: 10px 20px; border: none; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+  .btn-success { background: linear-gradient(135deg, var(--success), #059669); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+  .btn-success:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4); }
+  .empty-state { padding: 80px 40px; text-align: center; color: var(--gray-500); }
+  .empty-state i { font-size: 48px; color: var(--gray-300); margin-bottom: 16px; }
+  .empty-state-title { font-size: 18px; font-weight: 700; color: var(--gray-800); margin-bottom: 8px; }
+  .empty-state-text { font-size: 14px; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div class="stat-card-icon success"><i class="fas fa-check-circle"></i></div>
+    </div>
+    <div class="stat-card-value">R$ {{ totals.ready_total|floatformat:2|intcomma }}</div>
+    <div class="stat-card-label">Total a Pagar (Pendente)</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-card-header">
+      <div class="stat-card-icon primary"><i class="fas fa-money-bill-wave"></i></div>
+    </div>
+    <div class="stat-card-value">R$ {{ totals.paid_month_total|floatformat:2|intcomma }}</div>
+    <div class="stat-card-label">Pago (Mês Atual)</div>
+  </div>
+</div>
+
+<div class="card">
+  <form method="POST" action="">
+    {% csrf_token %}
+    <div class="card-header">
+      <h3 class="card-title">
+        <i class="fas fa-list-ul" style="color: var(--primary);"></i>
+        Comissões Pendentes (Prontas para Pagar)
+      </h3>
+      <div class="header-actions">
+        <button type="submit" class="btn-action btn-success">
+          <i class="fas fa-download"></i> Gerar Relatório (CSV) e Marcar como Pago
+        </button>
+      </div>
+    </div>
+    
+    <div class="card-body" style="padding: 0;">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 20px;"><input type="checkbox" id="checkAllSellers"></th>
+              <th>Vendedor</th>
+              <th style="text-align: center;">Comissões Pendentes</th>
+              <th style="text-align: right;">Valor Total a Pagar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for group in payment_groups %}
+            <tr>
+              <td>
+                <input type="checkbox" name="selected_sellers" value="{{ group.seller_id }}">
+              </td>
+              <td>
+                <div class="seller-row">
+                  <div class="seller-avatar">{{ group.seller_name.0|upper }}</div>
+                  <div class="seller-info">
+                    <div class="seller-name">{{ group.seller_name }}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="text-align: center;">{{ group.commission_count }}</td>
+              <td style="text-align: right; font-weight: 700; font-size: 16px; color: var(--success);">
+                R$ {{ group.total_value|floatformat:2|intcomma }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4">
+                <div class="empty-state">
+                  <i class="fas fa-piggy-bank"></i>
+                  <p class="empty-state-title">Nenhuma comissão pronta para pagamento</p>
+                  <p class="empty-state-text">Quando novas vendas forem lançadas, suas comissões aparecerão aqui.</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+  // Script para marcar/desmarcar todos os checkboxes
+  const checkAll = document.getElementById('checkAllSellers');
+  if (checkAll) {
+    checkAll.addEventListener('click', function() {
+      const isChecked = this.checked;
+      document.querySelectorAll('input[name="selected_sellers"]').forEach(checkbox => {
+        checkbox.checked = isChecked;
+      });
+    });
+  }
+</script>
+{% endblock %}
